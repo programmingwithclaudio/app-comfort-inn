@@ -22,8 +22,16 @@ flask db upgrade     # Aplica la migración a la base de datos
 
 flask db migrate -m "Aumentar la longitud del campo password a 256 caracteres"
 flask db upgrade
+pip freeze > requirements.txt
+```
+- Deploy profesional
+``` 
+pip install gunicorn
+export CONFIG_ENV=config.dev
+gunicorn -w 1 -b 127.0.0.1:8000 entrypoint:app
 
 ```
+
 - git
 ``` 
 git init
