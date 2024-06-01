@@ -1,6 +1,7 @@
-from flask import render_template, request, redirect, url_for
+# admin/routes.py
+from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required, logout_user, current_user
-from .forms import AddCourseForm, ReservationForm
+from .forms import AddCourseForm, ReservationForm, BookingForm
 from .models import Customer, Booking, Pricing, Reservation
 from . import admin_bp
 from ..models import User
@@ -25,35 +26,45 @@ def settings():
     return render_template('admin/settings.html', user=current_user)
 
 
-
 @admin_bp.route('/dashboard/booking')
 def booking():
     # Página de inicio, muestra las reservas existentes
     bookings = Booking.query.all()
     return render_template('admin/booking.html', bookings=bookings)
 
+
 @admin_bp.route('/dashboard/booking/add_booking', methods=['GET', 'POST'])
+@login_required
 def add_bookings():
-    # Crear una nueva reserva
-    if request.method == 'POST':
-        # Procesar el formulario de reserva enviado por el usuario
-        # Guardar la reserva en la base de datos
-        return redirect(url_for('admin.home'))
-    else:
-        # Mostrar el formulario de creación de reserva
-        return render_template('admin/new_booking.html')
+    form = BookingForm()
+    form.cid.choices = [(customer.cid, customer.fullname) for customer in Customer.query.all()]
+    if form.validate_on_submit():
+        booking = Booking(
+            cid=form.cid.data,
+            status=form.status.data,
+            notes=form.notes.data
+        )
+        booking.save()
+        flash('Nueva reserva creada con éxito', 'success')
+        return redirect(url_for('admin.booking'))
+    return render_template('admin/new_booking.html', form=form)
+
 
 @admin_bp.route('/dashboard/booking/<int:booking_id>/edit', methods=['GET', 'POST'])
+@login_required
 def edit_bookings(booking_id):
-    # Editar una reserva existente
     booking = Booking.query.get_or_404(booking_id)
-    if request.method == 'POST':
-        # Procesar el formulario de edición de reserva enviado por el usuario
-        # Actualizar la reserva en la base de datos
-        return redirect(url_for('admin.home'))
-    else:
-        # Mostrar el formulario de edición de reserva con los datos actuales
-        return render_template('admin/edit_booking.html', booking=booking)
+    form = BookingForm(obj=booking)
+    form.cid.choices = [(customer.cid, customer.fullname) for customer in Customer.query.all()]
+    if form.validate_on_submit():
+        booking.cid = form.cid.data
+        booking.status = form.status.data
+        booking.notes = form.notes.data
+        booking.save()
+        flash('Reserva actualizada con éxito', 'success')
+        return redirect(url_for('admin.booking'))
+    return render_template('admin/edit_booking.html', form=form, booking=booking)
+
 
 @admin_bp.route('/dashboard/reservations')
 def reservations():
@@ -61,13 +72,13 @@ def reservations():
     reservations = Reservation.query.all()
     return render_template('admin/reservation.html', reservations=reservations)
 
+
 @admin_bp.route('/dashboard/reservations/new', methods=['GET', 'POST'])
+@login_required
 def add_reservation():
-    # Crear una nueva reserva
     form = ReservationForm()
-    form.booking_id.choices = [(booking.id, booking.name) for booking in Booking.query.all()]
+    form.booking_id.choices = [(booking.id, f"Booking ID: {booking.id} - Customer: {booking.customer.fullname} - Status: {booking.status}") for booking in Booking.query.all()]
     if form.validate_on_submit():
-        # Crear una nueva reserva a partir de los datos del formulario
         reservation = Reservation(
             booking_id=form.booking_id.data,
             start=form.start.data,
@@ -79,8 +90,10 @@ def add_reservation():
             requests=form.requests.data
         )
         reservation.save()
+        flash('Nueva reserva creada con éxito', 'success')
         return redirect(url_for("admin.reservations"))
     return render_template('admin/new_reservation.html', form=form)
+
 
 @admin_bp.route('/dashboard/reservations/<int:reservation_id>/edit', methods=['GET', 'POST'])
 def edit_reservation(reservation_id):
@@ -99,6 +112,7 @@ def edit_reservation(reservation_id):
         reservation.save()
         return redirect(url_for('admin.reservations'))
     return render_template('admin/edit_reservation.html', form=form, reservation=reservation)
+
 
 @admin_bp.route('/dashboard/reservations/<int:reservation_id>/delete', methods=['POST'])
 def delete_reservation(reservation_id):

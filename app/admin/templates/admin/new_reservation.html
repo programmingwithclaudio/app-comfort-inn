@@ -1,46 +1,46 @@
 <!-- new_reservation.html -->
 {% extends 'dashboard_base.html' %}
 {% block main_content %}
-<div class="new-reservation"> <!-- class="new-reservation"-->
-    <h2>Nueva Reserva</h2>
+        <h2 class="section-header">Nueva Reserva</h2>
+<div class="form-model">
+
     <form method="POST" action="{{ url_for('admin.add_reservation') }}">
         {{ form.csrf_token }}
-        <table class="panel"> <!-- class="reservation-form"-->
-            <tr>
-                <th>{{ form.booking_id.label }}</th>
-                <td>{{ form.booking_id }}</td>
-            </tr>
-            <tr>
-                <th>{{ form.start.label }}</th>
-                <td>{{ form.start }}</td>
-            </tr>
-            <tr>
-                <th>{{ form.end.label }}</th>
-                <td>{{ form.end }}</td>
-            </tr>
-            <tr>
-                <th>{{ form.type.label }}</th>
-                <td>{{ form.type }}</td>
-            </tr>
-            <tr>
-                <th>{{ form.requirement.label }}</th>
-                <td>{{ form.requirement }}</td>
-            </tr>
-            <tr>
-                <th>{{ form.adults.label }}</th>
-                <td>{{ form.adults }}</td>
-            </tr>
-            <tr>
-                <th>{{ form.children.label }}</th>
-                <td>{{ form.children }}</td>
-            </tr>
-            <tr>
-                <th>{{ form.requests.label }}</th>
-                <td>{{ form.requests }}</td>
-            </tr>
-        </table>
-        <button class="button add" type="submit">+ Crear Reserva</button>
+        <div class="form-group">
+            <label for="booking_id">{{ form.booking_id.label }}</label>
+            {{ form.booking_id }}
+        </div>
+        <div class="form-group">
+            <label for="start">{{ form.start.label }}</label>
+            {{ form.start }}
+        </div>
+        <div class="form-group">
+            <label for="end">{{ form.end.label }}</label>
+            {{ form.end }}
+        </div>
+        <div class="form-group">
+            <label for="type">{{ form.type.label }}</label>
+            {{ form.type }}
+        </div>
+        <div class="form-group">
+            <label for="requirement">{{ form.requirement.label }}</label>
+            {{ form.requirement }}
+        </div>
+        <div class="form-group">
+            <label for="adults">{{ form.adults.label }}</label>
+            {{ form.adults }}
+        </div>
+        <div class="form-group">
+            <label for="children">{{ form.children.label }}</label>
+            {{ form.children }}
+        </div>
+        <div class="form-group">
+            <label for="requests">{{ form.requests.label }}</label>
+            {{ form.requests }}
+        </div>
+        <div class="form-group">
+            <button class="button add" type="submit">+ Crear Reserva</button>
+        </div>
     </form>
 </div>
-
 {% endblock %}
