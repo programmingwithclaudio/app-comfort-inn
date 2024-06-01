@@ -1,27 +1,36 @@
 :root {
-    --bgColor: #0c6cb0;
-    --yellow: #ffce7a;
-    --skyblue: #88c8f7;
+    --bgColor: #001F3F;
+    --yellow: #FFD700;
+    --skyblue: #00539C;
+    --orange: #dc2d22; /* Naranja */
+    --colorwrite: #fff; /* Naranja */
     --titleFont: 'Inter', sans-serif;
     --textFont: 'Manrope', sans-serif;
+
 }
 
 body {
     margin: 0;
     padding: 0;
-    color: #0c6cb0;
+    color: #00539C;
 }
 .container {
     padding: 0 6em;
-    background-color: #0c6cb0;
+    background-color: #f5f5f5;
+    background-image: url('imgs/rivage.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* Opcional: fija la imagen de fondo */
     width: 100vw;
     height: 100vh;
     box-sizing: border-box;
 }
-.header { 
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background-color: #ffffff;/* Color de fondo deseado */
     width: 100%;
     height: 96px;
     font-family: var(--textFont);
@@ -66,7 +75,7 @@ body {
     border-radius: 100%;
     padding: .2em;
     color: var(--yellow);
-    background-color: #fff;
+    background-color: var(--colorwrite);
 }
 .header .auth .signin {
 
@@ -85,7 +94,7 @@ body {
     align-items: center;
     width: 100%;
     height: 100%;
-    color: #fff;
+    color: #000000;
     text-decoration: none;
     font-size: .9em;
 }
@@ -107,6 +116,56 @@ body {
     font-weight: 500;
 }
 
+
+/* nav ---------------------- */
+
+.menu-icon {
+    cursor: pointer;
+}
+
+.navigation {
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+    gap: 1.5rem;
+}
+
+.navigation li {
+    font-size: 1.25rem;
+}
+
+.navigation a {
+    color: black;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.navigation a:hover {
+    color: var(--yellow);
+}
+
+
+/* Ocultar el menú en tamaños de pantalla pequeños */
+.navigation.show {
+    display: none;
+}
+
+/* Estilos para el ícono del menú */
+.menu-icon {
+    cursor: pointer;
+    display: none; /* Ocultar el ícono del menú en tamaños de pantalla grandes */
+}
+
+/* Mostrar el ícono del menú en tamaños de pantalla pequeños */
+@media (max-width: 600px) {
+    .menu-icon {
+        display: block;
+    }
+}
+
+
+
+
 /* HERO */
 .hero {
     position: relative;
@@ -124,7 +183,7 @@ body {
     font-size: 2.2em;
     font-family: var(--titleFont);
     margin: 0;
-    color: #f8f9fa;
+    color: var(--colorwrite);
 }
 .hero .hero-text h3 {
     margin: .8em 0;
@@ -139,7 +198,11 @@ body {
     font-size: 1em;
     font-family: var(--titleFont);
     line-height: 1.9em;
-    color: var(--skyblue);
+    color: var(--colorwrite);
+    background-color: var(--orange); /* Fondo naranja semitransparente */
+    padding: 0.2em 0.4em; /* Espacio alrededor del texto */
+    border-radius: 5px; /* Bordes redondeados */
+    display: inline; /* Para que se ajuste al texto */
 }
 .hero .hero-text .btn-cta {
     display: flex;
@@ -166,6 +229,9 @@ body {
     height: 100%;
 }
 
+
+
+
 /* LOGIN */
 #login-container {
     position: absolute;
@@ -178,6 +244,7 @@ body {
     height: calc(100% - 95px);
     background-color: rgba(0, 0, 0, .8);
 }
+
 /* .show {
     display: block;
 } */

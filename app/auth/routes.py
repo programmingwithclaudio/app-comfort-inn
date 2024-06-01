@@ -20,8 +20,9 @@ def signup():
         lastname = request.form["lastname"]
         email = request.form["email"]
         password = request.form["password"]
-        user = User( firstname=firstname, lastname=lastname,
-                    email=email)
+        phone= request.form["phone"]
+        role=request.form["role"]
+        user = User( firstname=firstname, lastname=lastname, email=email, phone=phone, role=role)
         user.set_password(password)
         user.save()
         return redirect(url_for("auth.signin"))

@@ -1,0 +1,35 @@
+<!-- edit_reservation.html -->
+{% extends 'dashboard_base.html' %}
+{% block main_content %}
+<div class="edit-reservation">
+    <h1>Editar Reserva</h1>
+    <form method="POST" action="{{ url_for('admin.edit_reservation', reservation_id=reservation.id) }}">
+        {{ form.csrf_token }}
+        <div>
+            {{ form.booking_id.label }} {{ form.booking_id }}
+        </div>
+        <div>
+            {{ form.start.label }} {{ form.start }}
+        </div>
+        <div>
+            {{ form.end.label }} {{ form.end }}
+        </div>
+        <div>
+            {{ form.type.label }} {{ form.type }}
+        </div>
+        <div>
+            {{ form.requirement.label }} {{ form.requirement }}
+        </div>
+        <div>
+            {{ form.adults.label }} {{ form.adults }}
+        </div>
+        <div>
+            {{ form.children.label }} {{ form.children }}
+        </div>
+        <div>
+            {{ form.requests.label }} {{ form.requests }}
+        </div>
+        <button type="submit">Actualizar Reserva</button>
+    </form>
+</div>
+{% endblock %}

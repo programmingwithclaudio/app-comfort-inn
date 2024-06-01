@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Domina la tecnología con EDteam</title>
+    <title>Hotels Paradise</title>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,68 +12,60 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <ul class="menu">
-                <figure class="logo">
-                    <img src="./static/imgs/logo-monocolor.svg" alt="">
-                </figure>
-                <li>Cursos</li>
-                <li>Carreras</li>
-                <li>Comunidad</li>
-                <li>Enseña en EDteam</li>
-                <li class="premiun">Sube a premium</li>
+    <!-- Encabezado -->
+    <header class="header">
+        <div class="menu">
+            <img class="menu-icon" src="./static/imgs/burger-menu.svg" title='Burger Menu' alt='Burger Menu' onclick="toggleMenu()">
+            <ul class="navigation">
+                <li><a href="#home" title="Services">Home</a></li>
+                <li><a href="#blog" title="Blog">Rooms</a></li>
+                <li><a href="#services" title="About">Services</a></li>
+                <li><a href="#contact-us" title="Contact Us">Contact Us</a></li>
             </ul>
-            <div class="auth">
-                <div class="search"><i class="fas fa-search"></i></div>
-                <div class="dark-mode"><i class="fas fa-sun"></i></div>
-
-                <div class="signin" id="signin">
-                    <a href="#">Inicia sesión</a>
-                </div>
-                <div class="signup">
-                    <a href="{{ url_for('auth.signup') }}">Comienza gratis</a>
-                </div>
+        </div>
+        <div class="auth">
+            <div class="search"><i class="fas fa-search"></i></div>
+            <div class="dark-mode"><i class="fas fa-sun"></i></div>
+            <div class="signin" id="signin">
+                <a href="#">Inicia sesión</a>
             </div>
-        </header>
-        
+            <div class="signup">
+                <a href="{{ url_for('auth.signup') }}">Regístrate</a>
+            </div>
+        </div>
+        <script src="./static/js/header.js"></script>
+    </header>
+
+    <!-- Contenido principal -->
+    <div class="container">
         <main class="hero">
             <div class="hero-text">
-                <h2>Domina las carreras del futuro</h2>
-                <h3>y trabaja en cualquier lugar del mundo</h3>
-                <h2>sin salir de casa</h2>
-                <p>Miles de personas han aumentado sus ingresos, encontrando su primer empleo o creado su propia empresa estudiando en EDteam. <br>
-                    ¡Tú puedes ser el próximo!</p>
-                <p class="btn-cta">
-                    Comienza a estudiar gratis
-                </p>
-                <small>*No necesitas tarjeta de crédito</small>
+                <h2>Bienvenido al Paraíso</h2>
+                <h3>Descubre la experiencia de lujo</h3>
+                <h2>en el corazón de la ciudad</h2>
+                <p>Disfruta de una estancia inolvidable en Hotel Paradise. <br>
+                    ¡Reserva tu habitación hoy y vive el lujo y la comodidad que mereces!</p>
+                <p class="btn-cta">Reserva ahora</p>
+                <small>*Ofertas exclusivas para reservas en línea</small>
             </div>
-            <figure class="hero-image">
-                <img src="./static/imgs/students.png" width="300" height="300" alt="">
+              <!--
+            <figure class="container">
+                <img src="./static/imgs/hotelsi.jpg" width="300" height="300" alt="">
             </figure>
+            -->
         </main>
 
+        <!-- Formulario de inicio de sesión -->
         <div id="login-container">
             <div class="login">
                 <div class="login-header">
                     <strong>Inicia sesión</strong>
                     <div class="header-action">
-                        <button>
-                            <i class="fab fa-google"></i>
-                            Google
-                        </button>
-                        <button>
-                            <i class="fab fa-twitter"></i>
-                            Twitter
-                        </button>
-                        <button>
-                            <i class="fab    fa-github"></i>
-                            Github
-                        </button>
+                        <button><i class="fab fa-google"></i> Google</button>
+                        <button><i class="fab fa-twitter"></i> Twitter</button>
+                        <button><i class="fab fa-github"></i> Github</button>
                     </div>
                 </div>
-
                 <form method="POST" novalidate id="signin-form">
                     {{ form.hidden_tag() }}
                     <strong>O usa tu correo electrónico</strong>

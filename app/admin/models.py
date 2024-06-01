@@ -1,32 +1,104 @@
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 from app import db
+from sqlalchemy import Enum
 
 
-class Courses(db.Model):
-    id= db.Column(db.Integer, primary_key=True)
-    professor= db.Column(db.String(64), nullable=False)
-    title=db.Column(db.String(128), nullable=False)
-    description= db.Column(db.Text, nullable=False)
-    link = db.Column(db.String(256), nullable=False)
-    user_login_id = db.Column(db.Integer, db.ForeignKey('user_login.id'), nullable=False)
+class Customer(db.Model, UserMixin):
+    __tablename__ = "customer"
+    cid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    fullname = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(50), nullable=False, unique=True)
+    password = db.Column(db.String(150), nullable=False)
+    phone = db.Column(db.String(25), nullable=True)
 
+    bookings = db.relationship('Booking', backref='customer', lazy=True)
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password, password)
+
+    @classmethod
+    def find_by_id(cls, cid):
+        return cls.query.get(cid)
 
     def save(self):
-        if not self.id:
-            db.session.add(self)
+        db.session.add(self)
         db.session.commit()
 
     def delete(self):
         db.session.delete(self)
-        db.session.commit
-
-    @staticmethod
-    def get_all():
-        return Courses.query.all()
-
-    @staticmethod
-    def get_by_id(id):
-        return Courses.query.get(id)
+        db.session.commit()
 
 
+class Booking(db.Model):
+    __tablename__ = "booking"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    cid = db.Column(db.Integer, db.ForeignKey('customer.cid'), nullable=False)
+    status = db.Column(db.Enum('PENDING', 'CONFIRMED', 'CANCELLED', name='booking_status'), default='PENDING')
+    notes = db.Column(db.String(500), nullable=True)
+
+    reservations = db.relationship('Reservation', backref='booking', lazy=True)
+    pricings = db.relationship('Pricing', backref='booking', lazy=True)
+
+    @classmethod
+    def find_by_id(cls, booking_id):
+        return cls.query.get(booking_id)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+class Pricing(db.Model):
+    __tablename__ = "pricing"
+    pricing_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'), nullable=False)
+    nights = db.Column(db.Integer, nullable=False)
+    total_price = db.Column(db.Float, nullable=False)
+    booked_date = db.Column(db.Date, nullable=False)
+
+    @classmethod
+    def find_by_id(cls, pricing_id):
+        return cls.query.get(pricing_id)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+class Reservation(db.Model):
+    __tablename__ = "reservation"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'), nullable=False)
+    start = db.Column(db.String(30), nullable=False)
+    end = db.Column(db.String(30), nullable=False)
+    type = db.Column(db.Enum('Single', 'Double', 'Deluxe', name='reservation_type'), default='Single')
+    requirement = db.Column(db.Enum('No Preference', 'Non Smoking', 'Smoking', name='prevention'), default='No Preference')
+    adults = db.Column(db.Integer, nullable=False)
+    children = db.Column(db.Integer, default=0)
+    requests = db.Column(db.String(500), nullable=True)
+    timestamp = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
+    hash = db.Column(db.String(100), nullable=True)
+
+    @classmethod
+    def find_by_id(cls, reservation_id):
+        return cls.query.get(reservation_id)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
