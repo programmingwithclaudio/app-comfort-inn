@@ -1,7 +1,7 @@
 # admin/forms.py
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SelectField, IntegerField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Email
 from wtforms import SubmitField
 
 
@@ -30,7 +30,10 @@ class BookingForm(FlaskForm):
     submit = SubmitField('Guardar')
 
 
-
+class CustomerForm(FlaskForm):
+    fullname = StringField('Nombre completo', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    phone = StringField('Teléfono')
 
 
 

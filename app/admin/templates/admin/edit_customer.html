@@ -1,0 +1,17 @@
+{% extends 'dashboard_base.html' %}
+{% block main_content %}
+    <h2 class="section-header">Editar Cliente</h2>
+    <form method="POST" action="{{ url_for('admin.edit_customer', customer_id=customer.cid) }}">
+        {{ form.csrf_token }}
+        <div>
+            {{ form.fullname.label }} {{ form.fullname }}
+        </div>
+        <div>
+            {{ form.email.label }} {{ form.email }}
+        </div>
+        <div>
+            {{ form.phone.label }} {{ form.phone }}
+        </div>
+        <button type="submit">Actualizar</button>
+    </form>
+{% endblock %}

@@ -10,16 +10,10 @@ class Customer(db.Model, UserMixin):
     cid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     fullname = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(50), nullable=False, unique=True)
-    password = db.Column(db.String(150), nullable=False)
     phone = db.Column(db.String(25), nullable=True)
 
-    bookings = db.relationship('Booking', backref='customer', lazy=True)
-
-    def set_password(self, password):
-        self.password = generate_password_hash(password)
-
-    def verify_password(self, password):
-        return check_password_hash(self.password, password)
+    # Renombramos el backref
+    customer_bookings = db.relationship('Booking', backref='customer', lazy=True)
 
     @classmethod
     def find_by_id(cls, cid):
@@ -40,6 +34,9 @@ class Booking(db.Model):
     cid = db.Column(db.Integer, db.ForeignKey('customer.cid'), nullable=False)
     status = db.Column(db.Enum('PENDING', 'CONFIRMED', 'CANCELLED', name='booking_status'), default='PENDING')
     notes = db.Column(db.String(500), nullable=True)
+
+    # Se usa 'customer_detail' para el backref
+    customer_detail = db.relationship('Customer', backref='bookings')
 
     reservations = db.relationship('Reservation', backref='booking', lazy=True)
     pricings = db.relationship('Pricing', backref='booking', lazy=True)

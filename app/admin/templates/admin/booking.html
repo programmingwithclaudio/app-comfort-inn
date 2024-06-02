@@ -1,11 +1,58 @@
 <!-- bookings.html -->
 {% extends 'dashboard_base.html' %}
 {% block main_content %}
-    <link rel="stylesheet" href="../../../static/css/booking.css">
-    <div class="table-widget">
-        <!-- generate table here -->
-    </div>
-    <script src="../../../static/js/booking.min.js"></script>
-    <script src="../../../static/js/booking.js"></script>
+    <h2 class="section-header">Booking Management</h2>
 
+    <div class="panel">
+        <div class="panel__header">
+            <div class="input__wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" placeholder="Search for anything...">
+        </div>
+        </div>
+        <div class="panel__body">
+            <div class="filter__wrapper">
+            <span class="filter__label">Filters:</span>
+            <select class="filter__select">
+                <option value="all">All</option>
+                <option value="this-week">This week</option>
+                <option value="this-month">This month</option>
+                <option value="completed">Completed</option>
+                <option value="in-progress">In progress</option>
+            </select>
+            <a href="{{ url_for('admin.add_booking') }}" class="button add">Add Booking</a>
+        </div>
+            <div class="panel__table">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Customer Name</th>
+                <th>Status</th>
+                <th>Status</th>
+                <th>Notes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>{{ booking.id }}</td>
+                <td>{{ booking.customer.fullname }}</td>
+                <td>{{ booking.status }}</td>
+                <td>{{ booking.notes }}</td>
+                <td>
+                    <a href="{{ url_for('admin.edit_booking', booking_id=booking.id) }}">Edit</a>
+                    <!-- Add delete option if needed -->
+                    <form action="{{ url_for('admin.delete_reservation', reservation_id=reservation.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="button delete">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+            </div>
+    </div>
+</div>
 {% endblock %}

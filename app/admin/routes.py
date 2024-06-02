@@ -1,15 +1,17 @@
 # admin/routes.py
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required, logout_user, current_user
-from .forms import AddCourseForm, ReservationForm, BookingForm
+from .forms import AddCourseForm, ReservationForm, BookingForm, CustomerForm
 from .models import Customer, Booking, Pricing, Reservation
 from . import admin_bp
 from ..models import User
+
 
 @admin_bp.route("/dashboard")
 @login_required
 def dashboard():
     return render_template("admin/home.html")
+
 
 @admin_bp.route("/dashboard/settings")
 @login_required
@@ -35,7 +37,7 @@ def booking():
 
 @admin_bp.route('/dashboard/booking/add_booking', methods=['GET', 'POST'])
 @login_required
-def add_bookings():
+def add_booking():
     form = BookingForm()
     form.cid.choices = [(customer.cid, customer.fullname) for customer in Customer.query.all()]
     if form.validate_on_submit():
@@ -119,3 +121,53 @@ def delete_reservation(reservation_id):
     reservation = Reservation.find_by_id(reservation_id)
     reservation.delete()
     return redirect(url_for('admin.reservations'))
+
+
+@admin_bp.route('/dashboard/customers')
+@login_required
+def customers():
+    customers = Customer.query.all()
+    return render_template('admin/customer.html', customers=customers)
+
+
+@admin_bp.route('/dashboard/customers/add', methods=['GET', 'POST'])
+@login_required
+def add_customer():
+    form = CustomerForm()
+    if form.validate_on_submit():
+        customer = Customer(
+            fullname=form.fullname.data,
+            email=form.email.data,
+            phone=form.phone.data
+        )
+        customer.save()
+        flash('Cliente añadido con éxito', 'success')
+        return redirect(url_for('admin.customers'))
+    return render_template('admin/new_customer.html', form=form)
+
+
+@admin_bp.route('/dashboard/customers/<int:customer_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_customer(customer_id):
+    customer = Customer.query.get_or_404(customer_id)
+    form = CustomerForm(obj=customer)
+    if form.validate_on_submit():
+        customer.fullname = form.fullname.data
+        customer.email = form.email.data
+        customer.phone = form.phone.data
+        customer.save()
+        flash('Cliente actualizado con éxito', 'success')
+        return redirect(url_for('admin.customers'))
+    return render_template('admin/edit_customer.html', form=form, customer=customer)
+
+
+@admin_bp.route('/dashboard/customers/<int:customer_id>/delete', methods=['POST'])
+@login_required
+def delete_customer(customer_id):
+    customer = Customer.find_by_id(customer_id)
+    if customer:
+        customer.delete()
+        flash('Cliente eliminado con éxito', 'success')
+    else:
+        flash('Cliente no encontrado', 'danger')
+    return redirect(url_for('admin.customers'))

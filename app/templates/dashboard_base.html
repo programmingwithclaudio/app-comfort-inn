@@ -79,6 +79,21 @@
                         </a>
                     </li>
                     <li>
+                        <a href="/dashboard/customers" title="Customers" class="tooltip">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-users" width="24" height="24"
+                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                              <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                              <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                              <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
+                            </svg>
+                            <span class="link hide">Customers</span>
+                            <span class="tooltip__content">Customers</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="#map-prices" title="Map Prices" class="tooltip">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-receipt-2" width="24" height="24"
                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
@@ -122,56 +137,6 @@
         <main class="main">
             {% block main_content %}
             {% endblock main_content %}
-        </main>
-        <main class="main">
-            <h1 class="section-header">Booking Panel</h1>
-            <div class="panel">
-                <div class="panel__header">
-                    <div class="input__wrapper">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="search" placeholder="Search for anything...">
-                    </div>
-                </div>
-                <div class="panel__body">
-                    <div class="filter__wrapper">
-                        <span class="filter__label">Filters:</span>
-                        <select class="filter__select">
-                            <option value="all">All</option>
-                            <option value="this-week">This week</option>
-                            <option value="this-month">This month</option>
-                            <option value="completed">Completed</option>
-                            <option value="in-progress">In progress</option>
-                        </select>
-                        <button class="button add">+ Add New</button>
-                    </div>
-                    <div class="panel__table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Guest Name</th>
-                                    <th>Booking Date</th>
-                                    <th>Booking Status</th>
-                                    <th>Contact</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>John Doe</td>
-                                    <td>01/01/2024</td>
-                                    <td class="status completed">Completed</td>
-                                    <td>john.doe@example.com</td>
-                                    <td>
-                                        <button class="button edit">Edit</button>
-                                        <button class="button delete">Delete</button>
-                                    </td>
-                                </tr>
-                                <!-- Add more rows as needed -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
         </main>
     </div>
     <script src="{{ url_for('static', filename='dashboard.js') }}"></script>

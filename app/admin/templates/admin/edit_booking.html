@@ -1,5 +1,17 @@
 <!-- edit_bookings.html -->
 {% extends 'dashboard_base.html' %}
 {% block main_content %}
-
+    <h2 class="">Edit Booking</h2>
+    <form method="POST" action="{{ url_for('admin.edit_booking', booking_id=booking.id) }}">
+        <div>
+            {{ form.cid.label }}: {{ form.cid }}
+        </div>
+        <div>
+            {{ form.status.label }}: {{ form.status }}
+        </div>
+        <div>
+            {{ form.notes.label }}: {{ form.notes }}
+        </div>
+        <button type="submit">Submit</button>
+    </form>
 {% endblock %}

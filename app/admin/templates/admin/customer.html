@@ -1,0 +1,43 @@
+<!-- customer.html -->
+{% extends 'dashboard_base.html' %}
+{% block main_content %}
+    <h2 class="section-header">Gestión de Clientes</h2>
+    <div class="panel">
+        <div class="panel__header">
+            <div class="input__wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" placeholder="Buscar...">
+            </div>
+            <a href="{{ url_for('admin.add_customer') }}" class="button add">Añadir Cliente</a>
+        </div>
+        <div class="panel__table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Teléfono</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr>
+                        <td>{{ customer.cid }}</td>
+                        <td>{{ customer.fullname }}</td>
+                        <td>{{ customer.email }}</td>
+                        <td>{{ customer.phone }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.edit_customer', customer_id=customer.cid) }}" class="button add">Editar</a>
+                            <form action="{{ url_for('admin.delete_customer', customer_id=customer.cid) }}" method="post" style="display:inline;">
+                                <button type="submit" class="button delete">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

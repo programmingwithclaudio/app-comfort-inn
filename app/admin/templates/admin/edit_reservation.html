@@ -1,8 +1,8 @@
 <!-- edit_reservation.html -->
 {% extends 'dashboard_base.html' %}
 {% block main_content %}
+        <h2 class="section-header">Editar Reserva</h2>
 <div class="edit-reservation">
-    <h1>Editar Reserva</h1>
     <form method="POST" action="{{ url_for('admin.edit_reservation', reservation_id=reservation.id) }}">
         {{ form.csrf_token }}
         <div>
