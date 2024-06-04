@@ -4,10 +4,11 @@
     <h2 class="section-header">Gestión de Clientes</h2>
     <div class="panel">
         <div class="panel__header">
-            <div class="input__wrapper">
+            <form action="{{ url_for('admin.customers') }}" method="GET" class="input__wrapper">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="search" placeholder="Buscar...">
-            </div>
+                <input type="search" name="search" placeholder="Buscar..." value="{{ request.args.get('search', '') }}">
+                <button type="submit" class="button search">Buscar</button>
+            </form>
             <a href="{{ url_for('admin.add_customer') }}" class="button add">Añadir Cliente</a>
         </div>
         <div class="panel__table">
@@ -15,6 +16,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Identificador</th>
                         <th>Nombre</th>
                         <th>Email</th>
                         <th>Teléfono</th>
@@ -25,11 +27,12 @@
                     {% for customer in customers %}
                     <tr>
                         <td>{{ customer.cid }}</td>
+                        <td>{{ customer.identifier }}</td>
                         <td>{{ customer.fullname }}</td>
                         <td>{{ customer.email }}</td>
                         <td>{{ customer.phone }}</td>
                         <td>
-                            <a href="{{ url_for('admin.edit_customer', customer_id=customer.cid) }}" class="button add">Editar</a>
+                            <a href="{{ url_for('admin.edit_customer', customer_id=customer.cid) }}" class="button edit">Editar</a>
                             <form action="{{ url_for('admin.delete_customer', customer_id=customer.cid) }}" method="post" style="display:inline;">
                                 <button type="submit" class="button delete">Eliminar</button>
                             </form>
@@ -39,5 +42,27 @@
                 </tbody>
             </table>
         </div>
+    </div>
+    <!-- Agrega esta parte dentro de tu bloque main_content en customer.html -->
+    <div class="pagination">
+        {% if customers.has_prev %}
+            <a href="{{ url_for('admin.customers', page=customers.prev_num) }}">Previous</a>
+        {% endif %}
+
+        {% for page_num in customers.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == customers.page %}
+                    <strong>{{ page_num }}</strong>
+                {% else %}
+                    <a href="{{ url_for('admin.customers', page=page_num) }}">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                ...
+            {% endif %}
+        {% endfor %}
+
+        {% if customers.has_next %}
+            <a href="{{ url_for('admin.customers', page=customers.next_num) }}">Next</a>
+        {% endif %}
     </div>
 {% endblock %}

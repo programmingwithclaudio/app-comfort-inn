@@ -64,7 +64,7 @@ def edit_bookings(booking_id):
         booking.notes = form.notes.data
         booking.save()
         flash('Reserva actualizada con éxito', 'success')
-        return redirect(url_for('admin.booking'))
+        return redirect(url_for('admin.bookings'))
     return render_template('admin/edit_booking.html', form=form, booking=booking)
 
 
@@ -126,7 +126,15 @@ def delete_reservation(reservation_id):
 @admin_bp.route('/dashboard/customers')
 @login_required
 def customers():
-    customers = Customer.query.all()
+    search_term = request.args.get('search', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+
+    if search_term:
+        customers = Customer.query.filter(Customer.identifier.ilike(f'%{search_term}%')).paginate(page=page, per_page=per_page)
+    else:
+        customers = Customer.query.paginate(page=page, per_page=per_page)
+
     return render_template('admin/customer.html', customers=customers)
 
 
@@ -136,6 +144,7 @@ def add_customer():
     form = CustomerForm()
     if form.validate_on_submit():
         customer = Customer(
+            identifier=form.identifier.data,
             fullname=form.fullname.data,
             email=form.email.data,
             phone=form.phone.data
@@ -152,6 +161,7 @@ def edit_customer(customer_id):
     customer = Customer.query.get_or_404(customer_id)
     form = CustomerForm(obj=customer)
     if form.validate_on_submit():
+        customer.identifier = form.identifier.data
         customer.fullname = form.fullname.data
         customer.email = form.email.data
         customer.phone = form.phone.data

@@ -54,93 +54,73 @@
         </main>
 
         <!-- Sign In Form -->
-        <!-- Sign In Form -->
-        <div id="signin-container">
-            <div class="login">
-                <div class="login-header">
-                    <strong>Sign In</strong>
-                    <div class="header-action">
-                        <button><i class="fab fa-google"></i> Google</button>
-                        <button><i class="fab fa-twitter"></i> Twitter</button>
-                        <button><i class="fab fa-github"></i> Github</button>
-                    </div>
+
+        <!-- Rooms Section -->
+        <section class="rooms" id="rooms">
+            <h2>Our Rooms</h2>
+            <div class="room-gallery">
+                <img src="./static/imgs/hotels-bedroom.jpg" alt="Bedroom">
+                <img src="./static/imgs/hotels-door.jpg" alt="Door">
+                <img src="./static/imgs/hotels-read-person.jpg" alt="Person Reading">
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="services" id="services">
+            <h2>Our Services</h2>
+            <p>We offer a variety of services to make your stay comfortable and enjoyable.</p>
+            <!-- Add service details here -->
+        </section>
+
+        <!-- Contact Us Section -->
+        <section class="contact-us">
+            <h2>Contact Us</h2>
+            <p>Feel free to reach out to us for any inquiries or reservations.</p>
+            <div class="contact-content">
+                <div class="lottie-animation">
+                    <dotlottie-player src="./static/imgs/animation_llqd7ey4.lottie" autoplay loop></dotlottie-player>
                 </div>
-                <form method="POST" novalidate id="signin-form" class="login-form">
-                    {{ form.hidden_tag() }}
-                    <strong>Or use your email</strong>
-                    <div class="input">
-                        {{ form.email.label }}
-                        {{ form.email(id="signin-email") }}
+                <div id="contact-container">
+                    <form class="contact-form" method="POST" novalidate>
+                        {{ form.hidden_tag() }}
+                        <label for="name">Hello! My name is</label>
+                        {{ form.name(class="input-field", placeholder="Full Name", maxlength=80, id="contact-name") }}
+                        {% for error in form.name.errors %}
+                            <small style="color: red;">{{ error }}</small>
+                        {% endfor %}
+                        <label for="email">and I want to discuss a potential project. You can email me at</label>
+                        {{ form.email(class="input-field", placeholder="your@email") }}
                         {% for error in form.email.errors %}
                             <small style="color: red;">{{ error }}</small>
                         {% endfor %}
-                    </div>
-                    {% if form.__class__.__name__ == 'LoginForm' and form.__class__.__name__ != 'ComplaintForm' %}
-                        <div class="input">
-                            {{ form.password.label }}
-                            {{ form.password(id="signin-password") }}
-                            {% for error in form.password.errors %}
-                                <small style="color: red;">{{ error }}</small>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    <button type="submit">Sign In</button>
-                    <p>Don't have an account? <a href="{{ url_for('auth.signup') }}">Sign up, it's free</a></p>
-                    <p>Forgot your password?</p>
-                </form>
+                        <label for="phone">or reach out to me on</label>
+                        {{ form.phone(class="input-field", placeholder="your phone") }}
+                        {% for error in form.phone.errors %}
+                            <small style="color: red;">{{ error }}</small>
+                        {% endfor %}
+                        <label for="complaints_details">Here are some details about my project:</label>
+                        {{ form.complaints_details(class="textarea-field", placeholder="My project is about...", rows=3) }}
+                        {% for error in form.complaints_details.errors %}
+                            <small style="color: red;">{{ error }}</small>
+                        {% endfor %}
+                        <input type="submit" value="send request" class="submit-button" />
+                    </form>
+                </div>
             </div>
-        </div>
+        </section>
+        <script>
+        // JavaScript específico para el formulario de contacto
+        document.querySelector(".contact-form").addEventListener("submit", function(event) {
+            // Evita que el formulario se envíe
+            event.preventDefault();
 
-
-        <!-- Rooms Section -->
-    <section class="rooms" id="rooms">
-        <h2>Our Rooms</h2>
-        <div class="room-gallery">
-            <div class="room">
-                <img src="./static/imgs/hotels-bedroom.jpg" alt="Bedroom">
-                <h3>Deluxe Room</h3>
-                <p>Spacious and comfortable room with modern amenities.</p>
-            </div>
-            <div class="room">
-                <img src="./static/imgs/hotels-door.jpg" alt="Door">
-                <h3>Premium Suite</h3>
-                <p>Luxurious suite with breathtaking views and top-notch services.</p>
-            </div>
-            <div class="room">
-                <img src="./static/imgs/hotels-read-person.jpg" alt="Person Reading">
-                <h3>Standard Room</h3>
-                <p>Cozy room perfect for solo travelers or couples.</p>
-            </div>
-        </div>
-    </section>
-
-      <!-- Services Section -->
-      <section class="services" id="services">
-        <h2>Our Services</h2>
-        <p>We offer a variety of services to make your stay comfortable and enjoyable.</p>
-        <div class="service-container">
-          <div class="service">
-            <img class="service-img" src="./static/imgs/hotels-doorr.jpg" alt="Door Service">
-            <h3>Door Service</h3>
-            <p>We provide door service to assist you with your luggage.</p>
-          </div>
-          <div class="service">
-            <img class="service-img" src="./static/imgs/hotels-services.jpg" alt="Room Services">
-            <h3>Room Services</h3>
-            <p>Enjoy our room services for a comfortable stay.</p>
-          </div>
-          <div class="service">
-            <img class="service-img" src="./static/imgs/hotels-yes.jpg" alt="Concierge Services">
-            <h3>Concierge Services</h3>
-            <p>Our concierge team is available to assist you with any needs or questions.</p>
-          </div>
-        </div>
-      </section>
-
-    <!-- Contact Us Section -->
+            // Realiza acciones adicionales aquí, como enviar los datos a un servidor
+            // o mostrar un mensaje de confirmación al usuario
+        });
+    </script>
 
         <!-- Incluye el script de @dotlottie/react-player -->
-
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.js"></script>
     <script src="./static/main.js"></script>
     </div>
 </body>

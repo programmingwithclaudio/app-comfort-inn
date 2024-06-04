@@ -1,9 +1,12 @@
-from flask import render_template, request, redirect, url_for
+# auth/routes.py
+from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
-from .forms import LoginForm, SignupForm
-from app.models import User
+from .forms import LoginForm, SignupForm, ComplaintForm
+from app.models import User, Complaint
 from . import auth_bp
 from app import login_manager
+from app import db
+
 
 @auth_bp.route("/")
 def index():
@@ -55,3 +58,22 @@ def load_user(user_id):
     return User.get_by_id(int(user_id))
 
 
+@auth_bp.route("/contact-us", methods=["GET", "POST"])
+def contact_us():
+    form = ComplaintForm()
+    if form.validate_on_submit() and request.method == "POST":
+        name = request.form["name"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+        complaints_details = request.form["complaints_details"]
+
+        # Guardar la queja en la base de datos
+        complaint = Complaint(name=name, email=email, phone=phone, complaints_details=complaints_details)
+        complaint.save()
+
+        flash("Tu queja ha sido enviada con éxito.", "success")
+
+        # Redirige a la misma página después de enviar el formulario
+        return redirect(url_for("auth.signin"))
+
+    return render_template('auth/contact_us.html', form=form)

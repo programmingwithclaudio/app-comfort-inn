@@ -42,9 +42,10 @@
                 <td>{{ booking.status }}</td>
                 <td>{{ booking.notes }}</td>
                 <td>
-                    <a href="{{ url_for('admin.edit_booking', booking_id=booking.id) }}">Edit</a>
+                    <a href="{{ url_for('admin.edit_bookings', booking_id=booking.id) }}" class="button edit">Editar</a>
+
                     <!-- Add delete option if needed -->
-                    <form action="{{ url_for('admin.delete_reservation', reservation_id=reservation.id) }}" method="post" style="display:inline;">
+                    <form action="{{ url_for('admin.delete_reservation', reservation_id=booking.id) }}" method="post" style="display:inline;">
                         <button type="submit" class="button delete">Delete</button>
                     </form>
                 </td>

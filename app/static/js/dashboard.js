@@ -34,4 +34,3 @@ document.addEventListener("DOMContentLoaded", function() {
         // Implement the logic to add a new booking
     }
 });
-

@@ -1,13 +1,31 @@
+// Sign In Form
 const $signinBtn = document.getElementById("signin");
-const $login = document.getElementById("login-container");
+const $signinContainer = document.getElementById("signin-container");
 
 $signinBtn.addEventListener("click", () => {
-    $login.style.display = "block";
+    $signinContainer.style.display = "block";
+    document.getElementById("signin-email").focus();
 });
 
 document.onkeydown = function(e) {
     e = e || window.event;
     if (e.key === "Escape") {
-        $login.style.display = "none";
+        $signinContainer.style.display = "none";
+    }
+};
+
+// Sign Up Form
+const $signupBtn = document.getElementById("signup");
+const $signupContainer = document.getElementById("signup-container");
+
+$signupBtn.addEventListener("click", () => {
+    $signupContainer.style.display = "block";
+    document.getElementById("signup-firstname").focus();
+});
+
+document.onkeydown = function(e) {
+    e = e || window.event;
+    if (e.key === "Escape") {
+        $signupContainer.style.display = "none";
     }
 };

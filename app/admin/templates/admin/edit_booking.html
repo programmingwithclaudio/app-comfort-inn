@@ -3,13 +3,13 @@
 {% block main_content %}
     <h2 class="">Edit Booking</h2>
     <form method="POST" action="{{ url_for('admin.edit_booking', booking_id=booking.id) }}">
-        <div>
+        <div class="form-group">
             {{ form.cid.label }}: {{ form.cid }}
         </div>
-        <div>
+        <div class="form-group">
             {{ form.status.label }}: {{ form.status }}
         </div>
-        <div>
+        <div class="form-group">
             {{ form.notes.label }}: {{ form.notes }}
         </div>
         <button type="submit">Submit</button>

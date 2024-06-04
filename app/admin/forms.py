@@ -31,6 +31,7 @@ class BookingForm(FlaskForm):
 
 
 class CustomerForm(FlaskForm):
+    identifier = StringField('Identificador completo', validators=[DataRequired()])
     fullname = StringField('Nombre completo', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     phone = StringField('Teléfono')

@@ -9,6 +9,7 @@ pip install psycopg2-binary
 pip install Flask-SQLAlchemy
 pip install psycopg2
 pip install Flask-Migrate
+pip install flask-bootstrap
 
 ```
 - docker
@@ -24,6 +25,35 @@ flask db upgrade     # Aplica la migración a la base de datos
 flask db migrate -m "Aumentar la longitud del campo password a 256 caracteres"
 flask db upgrade
 pip freeze > requirements.txt
+
+```
+- docker
+```bash
+SELECT * FROM public.customer;
+SELECT current_setting('data_directory') AS data_directory;
+docker cp /home/crow/Descargas/customers.csv b35d2fccae0e:/var/lib/postgresql/data/customers.csv
+docker exec -it b35d2fccae0e bash
+ls /var/lib/postgresql/data
+
+
+```
+- docker modificate maal base de datos
+```bash
+SELECT * FROM public.customer;
+SELECT current_setting('data_directory') AS data_directory;
+DROP TABLE booking CASCADE;
+DROP table public.customer;
+CREATE TABLE customer (
+    cid SERIAL PRIMARY KEY,
+    identifier VARCHAR(25) NOT NULL UNIQUE,
+    fullname VARCHAR(250) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    phone VARCHAR(25)
+);
+COPY customer (cid, identifier, fullname, email, phone) FROM '/var/lib/postgresql/data/customers.csv' DELIMITER ',' CSV HEADER;
+
+SELECT * FROM pg_type WHERE typname = 'booking_status';
+DROP TYPE IF EXISTS booking_status;
 ```
 - Resoruces
 ``` 

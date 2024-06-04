@@ -1,17 +1,23 @@
 {% extends 'dashboard_base.html' %}
 {% block main_content %}
     <h2 class="section-header">Editar Cliente</h2>
+    <div class="form-model">
     <form method="POST" action="{{ url_for('admin.edit_customer', customer_id=customer.cid) }}">
         {{ form.csrf_token }}
-        <div>
+        <div class="form-group">
+            {{ form.identifier.label }} {{ form.identifier }}
+        </div>
+        <div class="form-group">
             {{ form.fullname.label }} {{ form.fullname }}
         </div>
-        <div>
+        <div class="form-group">
             {{ form.email.label }} {{ form.email }}
         </div>
-        <div>
+        <div class="form-group">
             {{ form.phone.label }} {{ form.phone }}
         </div>
-        <button type="submit">Actualizar</button>
+        <button class="button edit" type="submit">Actualizar</button>
+        <a href="{{ url_for('admin.customers') }}" class="custom-link">Volver</a>
     </form>
+    </div>
 {% endblock %}

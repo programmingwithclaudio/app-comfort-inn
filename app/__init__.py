@@ -3,16 +3,16 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import Enum
-
+from flask_bootstrap import Bootstrap
 
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
 
 
-
 def create_app(settings_module):
     app = Flask(__name__)
+    bootstrap = Bootstrap(app)
     app.config.from_object(settings_module)
 
     db.init_app(app)
@@ -26,6 +26,5 @@ def create_app(settings_module):
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
 
-
-
     return app
+

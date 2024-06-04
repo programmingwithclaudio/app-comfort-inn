@@ -8,6 +8,7 @@ from sqlalchemy import Enum
 class Customer(db.Model, UserMixin):
     __tablename__ = "customer"
     cid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    identifier = db.Column(db.String(20), nullable=False, unique=True)
     fullname = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(50), nullable=False, unique=True)
     phone = db.Column(db.String(25), nullable=True)

@@ -1,4 +1,3 @@
-
 body {
     font-family: 'Inter', sans-serif;
     margin: 0;
@@ -137,6 +136,7 @@ body {
 main {
     flex-grow: 1;
     padding: 20px;
+    overflow-y: auto;
 }
 
 .user__section {
@@ -153,18 +153,20 @@ main {
     position: relative;
 }
 
-/* otro diseños*/
+/* Estilos del Panel */
 
 .section-header {
     font-size: 24px;
     margin-bottom: 20px;
+
 }
 
 .panel {
-    background-color: #fff;
-    border-radius: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
+    border: 1px solid #ddd;
 }
 
 .panel__header {
@@ -185,11 +187,9 @@ main {
     padding: 10px;
     border: none;
     border-radius: 5px;
-    padding-left: 35px;
     background-color: #f4f5f7;
     color: #333;
 }
-
 
 .filter__wrapper {
     display: flex;
@@ -209,38 +209,29 @@ main {
     border-radius: 5px;
 }
 
-.button.add {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
 
-.button.add:hover {
-    background-color: #45a049;
-}
 
 .panel__table {
     width: 100%;
-    overflow-x: auto;
+    overflow-x: auto; /* Hacer la tabla responsiva */
 }
 
 .panel__table table {
     width: 100%;
     border-collapse: collapse;
+    border: 1px solid #ddd;
 }
 
 .panel__table table th,
 .panel__table table td {
-    padding: 10px;
-    text-align: left;
+    padding: 6px 8px; /* Reduce el padding para hacer las celdas más pequeñas */
+    min-width: 100px; /* Reduce el ancho mínimo para ajustar mejor el contenido */
+    text-align: center;
     border-bottom: 1px solid #ddd;
-}
-
-.panel__table table th {
     background-color: #f4f5f7;
+    white-space: nowrap; /* Evita que el texto se divida en múltiples líneas */
+    font-size: 16px; /* Disminuye el tamaño de la fuente para reducir el tamaño de las celdas */
+    vertical-align: center; /* Alinea el contenido al inicio de la celda verticalmente */
 }
 
 .status {
@@ -256,31 +247,6 @@ main {
 
 .status.in-progress {
     background-color: #FF9800;
-}
-
-.button {
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.button.edit {
-    background-color: #2196F3;
-    color: #fff;
-}
-
-.button.delete {
-    background-color: #f44336;
-    color: #fff;
-}
-
-.button.edit:hover {
-    background-color: #0b7dda;
-}
-
-.button.delete:hover {
-    background-color: #da190b;
 }
 
 .user__section {
@@ -307,7 +273,6 @@ main {
 }
 
 /* Estilos generales para los formularios */
-/* Estilos generales para los formularios */
 .form-model {
     width: 100%;
     max-width: 800px;
@@ -329,7 +294,7 @@ main {
 .form-group {
     display: flex;
     flex-direction: column;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .form-group label {
@@ -354,6 +319,7 @@ main {
     outline: none;
 }
 
+/* button serie*/
 .button {
     display: inline-block;
     padding: 10px 20px;
@@ -376,12 +342,84 @@ main {
     box-shadow: 0 4px 8px rgba(30, 144, 255, 0.2);
 }
 
-.button.add {
-    background-color: #1E90FF;
+.button.search,
+.button.add,
+.button.edit,
+.button.delete {
     color: white;
+    text-decoration: none;
+}
+
+.button.search:hover,
+.button.add:hover,
+.button.edit:hover,
+.button.delete:hover {
+    box-shadow: 0 4px 8px rgba(30, 144, 255, 0.2);
+}
+
+.custom-link {
+    display: inline-block; /* Hace que el enlace se comporte como un bloque */
+    padding: 10px 20px; /* Agrega espacio alrededor del enlace */
+    border-radius: 5px; /* Añade bordes redondeados */
+    background-color: #0f0f0f; /* Cambia el color de fondo */
+    color: white; /* Cambia el color del texto */
+    text-decoration: none; /* Quita el subrayado */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Transición suave */
+    margin-top: 10px; /* Agrega espacio encima del enlace */
+}
+
+.custom-link:hover {
+    background-color: #333; /* Cambia el color de fondo al pasar el cursor sobre el enlace */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Agrega sombra al pasar el cursor */
+}
+.button.search {
+    background-color: #f37f20;
+}
+
+.button.edit {
+    background-color: #2196F3;
+}
+
+.button.delete {
+    background-color: #f44336;
+}
+
+.button.add {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .button.add:hover {
-    background-color: #1C86EE;
-    box-shadow: 0 4px 8px rgba(30, 144, 255, 0.2);
+    background-color: #45a049;
+}
+
+/* Estilos CSS para la paginación */
+.pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination a {
+    display: inline-block;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin: 0 5px;
+}
+
+.pagination strong {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #333;
+    border-radius: 5px;
+    margin: 0 5px;
 }
