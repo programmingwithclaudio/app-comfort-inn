@@ -1,0 +1,66 @@
+<!-- pricing.html -->
+{% extends 'dashboard_base.html' %}
+{% block main_content %}
+    <h2 class="section-header">Precios para las Reservas</h2>
+    <div class="panel">
+        <div class="panel__header">
+            <div class="input__wrapper">
+                <form action="{{ url_for('admin.pricing') }}" method="GET" class="input__wrapper">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="search" name="search" placeholder="Buscar..." value="{{ request.args.get('search', '') }}">
+                    <button type="submit" class="button search">Buscar</button>
+                </form>
+            </div>
+        </div>
+        <div class="panel__body">
+            <div class="panel__table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID de Reserva</th>
+                            <th>Noches</th>
+                            <th>Precio Total</th>
+                            <th>Fecha de Reserva</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pricing in pricings.items %}
+                            <tr>
+                                <td>{{ pricing.booking.id }}</td>
+                                <td>{{ pricing.nights }}</td>
+                                <td>{{ pricing.total_price }}</td>
+                                <td>{{ pricing.booked_date }}</td>
+                                <td>
+                                    <a href="{{ url_for('admin.pricing_edit', booking_id=pricing.booking.id) }}" class="button edit">Editar</a>
+                                    <form action="{{ url_for('admin.pricing_delete', pricing_id=pricing.pricing_id) }}" method="post" style="display:inline;">
+                                        <button type="submit" class="button delete">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                {% if pricings.has_prev %}
+                    <a href="{{ url_for('admin.pricing', page=pricings.prev_num) }}">Anterior</a>
+                {% endif %}
+                {% for page_num in pricings.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num == pricings.page %}
+                            <strong>{{ page_num }}</strong>
+                        {% else %}
+                            <a href="{{ url_for('admin.pricing', page=page_num) }}">{{ page_num }}</a>
+                        {% endif %}
+                    {% else %}
+                        ...
+                    {% endif %}
+                {% endfor %}
+                {% if pricings.has_next %}
+                    <a href="{{ url_for('admin.pricing', page=pricings.next_num) }}">Siguiente</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,10 +1,11 @@
 # admin/routes.py
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, logout_user, current_user
-from .forms import AddCourseForm, ReservationForm, BookingForm, CustomerForm
+from .forms import AddCourseForm, ReservationForm, BookingForm, CustomerForm, PricingForm
 from .models import Customer, Booking, Pricing, Reservation
 from . import admin_bp
 from ..models import User
+from datetime import datetime
 
 
 @admin_bp.route("/dashboard")
@@ -28,18 +29,37 @@ def settings():
     return render_template('admin/settings.html', user=current_user)
 
 
-@admin_bp.route('/dashboard/booking')
+@admin_bp.route('/dashboard/bookings')
 def booking():
-    # Página de inicio, muestra las reservas existentes
-    bookings = Booking.query.all()
+    search_term = request.args.get('search', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+
+    if search_term:
+        # Aquí estoy asumiendo que 'fullname' es un campo en tu modelo Customer.
+        # Necesitas ajustarlo según tu modelo real.
+        bookings = Booking.query.join(Booking.customer).filter(Customer.fullname.ilike(f'%{search_term}%')).paginate(page=page, per_page=per_page)
+    else:
+        bookings = Booking.query.paginate(page=page, per_page=per_page)
+
     return render_template('admin/booking.html', bookings=bookings)
 
 
-@admin_bp.route('/dashboard/booking/add_booking', methods=['GET', 'POST'])
+@admin_bp.route('/dashboard/bookings/get_customer_name', methods=['GET'])
+def get_customer_name():
+    identifier = request.args.get('identifier', '', type=str)
+    customer = Customer.query.filter_by(identifier=identifier).first()
+    if customer:
+        return jsonify(fullname=customer.fullname, cid=customer.cid)
+    else:
+        return jsonify(fullname='', cid='')
+
+
+@admin_bp.route('/dashboard/bookings/add_booking', methods=['GET', 'POST'])
 @login_required
 def add_booking():
     form = BookingForm()
-    form.cid.choices = [(customer.cid, customer.fullname) for customer in Customer.query.all()]
+    form.cid.choices = [(customer.cid, customer.identifier, customer.fullname) for customer in Customer.query.all()]
     if form.validate_on_submit():
         booking = Booking(
             cid=form.cid.data,
@@ -52,20 +72,32 @@ def add_booking():
     return render_template('admin/new_booking.html', form=form)
 
 
-@admin_bp.route('/dashboard/booking/<int:booking_id>/edit', methods=['GET', 'POST'])
+@admin_bp.route('/dashboard/bookings/<int:booking_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_bookings(booking_id):
     booking = Booking.query.get_or_404(booking_id)
     form = BookingForm(obj=booking)
-    form.cid.choices = [(customer.cid, customer.fullname) for customer in Customer.query.all()]
+    form.cid.choices = [(customer.cid, customer.identifier, customer.fullname) for customer in Customer.query.all()]
     if form.validate_on_submit():
         booking.cid = form.cid.data
         booking.status = form.status.data
         booking.notes = form.notes.data
         booking.save()
         flash('Reserva actualizada con éxito', 'success')
-        return redirect(url_for('admin.bookings'))
+        return redirect(url_for('admin.booking'))
     return render_template('admin/edit_booking.html', form=form, booking=booking)
+
+
+@admin_bp.route('/dashboard/bookings/<int:booking_id>/delete', methods=['POST'])
+@login_required
+def delete_booking(booking_id):
+    booking = Booking.find_by_id(booking_id)
+    if booking:
+        booking.delete()
+        flash('Bookings eliminado con éxito', 'success')
+    else:
+        flash('Bookings no encontrado', 'danger')
+    return redirect(url_for('admin.booking'))
 
 
 @admin_bp.route('/dashboard/reservations')
@@ -79,21 +111,36 @@ def reservations():
 @login_required
 def add_reservation():
     form = ReservationForm()
-    form.booking_id.choices = [(booking.id, f"Booking ID: {booking.id} - Customer: {booking.customer.fullname} - Status: {booking.status}") for booking in Booking.query.all()]
+    form.booking_id.choices = [
+        (booking.id, f"Booking ID: {booking.id} - Customer: {booking.customer.fullname} - Status: {booking.status}") for booking in Booking.query.all()
+    ]
+
     if form.validate_on_submit():
-        reservation = Reservation(
-            booking_id=form.booking_id.data,
-            start=form.start.data,
-            end=form.end.data,
-            type=form.type.data,
-            requirement=form.requirement.data,
-            adults=form.adults.data,
-            children=form.children.data,
-            requests=form.requests.data
-        )
-        reservation.save()
-        flash('Nueva reserva creada con éxito', 'success')
-        return redirect(url_for("admin.reservations"))
+        try:
+            # Concatenar la fecha y la hora de las entradas del formulario
+            start_datetime_str = f"{form.start_date.data} {form.start_time.data}"
+            end_datetime_str = f"{form.end_date.data} {form.end_time.data}"
+
+            # Convertir a objetos datetime
+            start_date = datetime.strptime(start_datetime_str, '%Y-%m-%d %H:%M')
+            end_date = datetime.strptime(end_datetime_str, '%Y-%m-%d %H:%M')
+
+            reservation = Reservation(
+                booking_id=form.booking_id.data,
+                start=start_date,
+                end=end_date,
+                type=form.type.data,
+                requirement=form.requirement.data,
+                adults=form.adults.data,
+                children=form.children.data,
+                requests=form.requests.data
+            )
+            reservation.save()
+            flash('Nueva reserva creada con éxito', 'success')
+            return redirect(url_for("admin.reservations"))
+        except ValueError:
+            flash('Por favor, ingresa las fechas y horas en el formato correcto.', 'danger')
+
     return render_template('admin/new_reservation.html', form=form)
 
 
@@ -101,7 +148,14 @@ def add_reservation():
 def edit_reservation(reservation_id):
     reservation = Reservation.find_by_id(reservation_id)
     form = ReservationForm(obj=reservation)
-    form.booking_id.choices = [(booking.id, booking.name) for booking in Booking.query.all()]
+    form.booking_id.choices = [(booking.id, f"Booking ID: {booking.id} - Customer: {booking.customer.fullname} - Status: {booking.status}") for booking in Booking.query.all()]
+
+    # Asignar los valores de fecha y hora del objeto de reserva al formulario
+    form.start_date.data = reservation.start.date()
+    form.start_time.data = reservation.start.strftime('%H:%M')
+    form.end_date.data = reservation.end.date()
+    form.end_time.data = reservation.end.strftime('%H:%M')
+
     if form.validate_on_submit():
         reservation.booking_id = form.booking_id.data
         reservation.start = form.start.data
@@ -116,10 +170,16 @@ def edit_reservation(reservation_id):
     return render_template('admin/edit_reservation.html', form=form, reservation=reservation)
 
 
+
 @admin_bp.route('/dashboard/reservations/<int:reservation_id>/delete', methods=['POST'])
+@login_required
 def delete_reservation(reservation_id):
     reservation = Reservation.find_by_id(reservation_id)
-    reservation.delete()
+    if reservation:
+        reservation.delete()
+        flash('Reserva eliminada con éxito', 'success')
+    else:
+        flash('La reserva no se encontró', 'danger')
     return redirect(url_for('admin.reservations'))
 
 
@@ -181,3 +241,46 @@ def delete_customer(customer_id):
     else:
         flash('Cliente no encontrado', 'danger')
     return redirect(url_for('admin.customers'))
+
+
+@admin_bp.route('/dashboard/pricing')
+def pricing():
+    search_term = request.args.get('search', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+
+    if search_term:
+        pricings = Pricing.query.filter_by(booking_id=search_term).paginate(page=page, per_page=per_page)
+    else:
+        pricings = Pricing.query.paginate(page=page, per_page=per_page)
+
+    return render_template('admin/pricing.html', pricings=pricings)
+
+
+@admin_bp.route('/dashboard/pricing/<int:booking_id>', methods=['GET', 'POST'])
+@login_required
+def pricing_edit(booking_id):
+    booking = Booking.query.get_or_404(booking_id)
+    form = PricingForm()
+    if form.validate_on_submit():
+        pricing = Pricing(
+            booking_id=booking_id,
+            nights=form.nights.data,
+            total_price=form.total_price.data,
+            booked_date=form.booked_date.data
+        )
+        pricing.save()
+        flash('Precio añadido con éxito', 'success')
+        return redirect(url_for('admin.pricing_edit', booking_id=booking_id))
+    pricings = Pricing.query.filter_by(booking_id=booking_id).all()
+    return render_template('admin/pricing.html', booking=booking, form=form, pricings=pricings)
+
+
+@admin_bp.route('/dashboard/pricing/<int:pricing_id>/delete', methods=['POST'])
+@login_required
+def pricing_delete(pricing_id):
+    pricing = Pricing.query.get_or_404(pricing_id)
+    booking_id = pricing.booking_id
+    pricing.delete()
+    flash('Precio eliminado con éxito', 'success')
+    return redirect(url_for('admin.pricing_edit', booking_id=booking_id))

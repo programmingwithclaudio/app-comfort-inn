@@ -373,7 +373,7 @@ main {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Agrega sombra al pasar el cursor */
 }
 .button.search {
-    background-color: #f37f20;
+    background-color: #333;
 }
 
 .button.edit {
@@ -422,4 +422,19 @@ main {
     border: 1px solid #333;
     border-radius: 5px;
     margin: 0 5px;
+}
+
+
+/* Estilos para el calendario */
+.datepicker {
+    z-index: 1600 !important; /* para evitar que se oculte detrás de otros elementos */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+.datepicker-dropdown {
+    position: absolute;
 }

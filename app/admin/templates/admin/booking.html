@@ -1,13 +1,16 @@
 <!-- bookings.html -->
 {% extends 'dashboard_base.html' %}
 {% block main_content %}
-    <h2 class="section-header">Booking Management</h2>
+    <h2 class="section-header">Gestor de Reserva</h2>
 
     <div class="panel">
         <div class="panel__header">
             <div class="input__wrapper">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="search" placeholder="Search for anything...">
+            <form action="{{ url_for('admin.booking') }}" method="GET" class="input__wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" name="search" placeholder="Buscar..." value="{{ request.args.get('search', '') }}">
+                <button type="submit" class="button search">Buscar</button>
+            </form>
         </div>
         </div>
         <div class="panel__body">
@@ -28,7 +31,6 @@
             <tr>
                 <th>ID</th>
                 <th>Customer Name</th>
-                <th>Status</th>
                 <th>Status</th>
                 <th>Notes</th>
                 <th>Actions</th>
@@ -56,4 +58,26 @@
             </div>
     </div>
 </div>
+        <!-- Agrega esta parte dentro de tu bloque main_content en customer.html -->
+    <div class="pagination">
+        {% if bookings.has_prev %}
+            <a href="{{ url_for('admin.booking', page=bookings.prev_num) }}">Previous</a>
+        {% endif %}
+
+        {% for page_num in bookings.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == bookings.page %}
+                    <strong>{{ page_num }}</strong>
+                {% else %}
+                    <a href="{{ url_for('admin.booking', page=page_num) }}">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                ...
+            {% endif %}
+        {% endfor %}
+
+        {% if bookings.has_next %}
+            <a href="{{ url_for('admin.booking', page=bookings.next_num) }}">Next</a>
+        {% endif %}
+    </div>
 {% endblock %}

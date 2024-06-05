@@ -3,6 +3,7 @@ from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 from app import db
 from sqlalchemy import Enum
+from datetime import datetime
 
 
 class Customer(db.Model, UserMixin):
@@ -39,7 +40,7 @@ class Booking(db.Model):
     # Se usa 'customer_detail' para el backref
     customer_detail = db.relationship('Customer', backref='bookings')
 
-    reservations = db.relationship('Reservation', backref='booking', lazy=True)
+    reservations = db.relationship('Reservation', backref='booking', lazy=True, cascade='all, delete-orphan')
     pricings = db.relationship('Pricing', backref='booking', lazy=True)
 
     @classmethod
@@ -80,8 +81,8 @@ class Reservation(db.Model):
     __tablename__ = "reservation"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'), nullable=False)
-    start = db.Column(db.String(30), nullable=False)
-    end = db.Column(db.String(30), nullable=False)
+    start = db.Column(db.DateTime, nullable=False)
+    end = db.Column(db.DateTime, nullable=False)
     type = db.Column(db.Enum('Single', 'Double', 'Deluxe', name='reservation_type'), default='Single')
     requirement = db.Column(db.Enum('No Preference', 'Non Smoking', 'Smoking', name='prevention'), default='No Preference')
     adults = db.Column(db.Integer, nullable=False)

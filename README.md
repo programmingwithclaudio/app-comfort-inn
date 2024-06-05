@@ -314,3 +314,31 @@ body {
 ## Figma
 - [figma free](https://www.byol.com/fig)
 
+---
+## Eliminación cascada y manual
+Para complementar la lógica de cascada de eliminación y permitir la eliminación de una reserva incluso si no tiene reservaciones asociadas, puedes ajustar la configuración de la relación entre `Booking` y `Reservation`. Actualmente, estás utilizando una relación de uno a muchos entre estas dos entidades, pero no has configurado la cascada de eliminación.
+
+Aquí hay algunas opciones que puedes considerar:
+
+1. **Agregar Cascada de Eliminación**: Puedes configurar la relación entre `Booking` y `Reservation` para que utilice la cascada de eliminación. Esto significa que cuando se elimina una reserva, todas las reservaciones asociadas también se eliminarán automáticamente. Esto se puede lograr agregando `cascade='all, delete-orphan'` a la relación en la definición de la clase `Booking`.
+
+```python
+reservations = db.relationship('Reservation', backref='booking', lazy=True, cascade='all, delete-orphan')
+```
+
+2. **Eliminar Manualmente las Reservaciones**: Si prefieres no usar la cascada de eliminación y permitir la eliminación manual de una reserva incluso si no tiene reservaciones asociadas, puedes agregar una lógica adicional al eliminar la reserva en tu función `delete_booking` en tus rutas.
+
+```python
+booking = Booking.query.get_or_404(booking_id)
+# Verificar si hay reservaciones asociadas
+if booking.reservations:
+    # Eliminar manualmente las reservaciones
+    for reservation in booking.reservations:
+        db.session.delete(reservation)
+# Eliminar la reserva
+db.session.delete(booking)
+db.session.commit()
+```
+
+Con estas opciones, puedes elegir el enfoque que mejor se adapte a tus necesidades y preferencias en cuanto a la gestión de reservas y reservaciones en tu aplicación.
+---

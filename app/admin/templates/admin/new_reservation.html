@@ -1,9 +1,8 @@
 <!-- new_reservation.html -->
 {% extends 'dashboard_base.html' %}
 {% block main_content %}
-        <h2 class="section-header">Nueva Reserva</h2>
+<h2 class="section-header">Nueva Reserva</h2>
 <div class="form-model">
-
     <form method="POST" action="{{ url_for('admin.add_reservation') }}">
         {{ form.csrf_token }}
         <div class="form-group">
@@ -11,12 +10,20 @@
             {{ form.booking_id }}
         </div>
         <div class="form-group">
-            <label for="start">{{ form.start.label }}</label>
-            {{ form.start }}
+            <label for="start_date">Fecha de Inicio</label>
+            <input type="text" id="start-date" name="start_date" class="form-control datepicker">
         </div>
         <div class="form-group">
-            <label for="end">{{ form.end.label }}</label>
-            {{ form.end }}
+            <label for="start_time">Hora de Inicio (Formato: HH:MM)</label>
+            <input type="text" id="start-time" name="start_time" class="form-control" placeholder="HH:MM">
+        </div>
+        <div class="form-group">
+            <label for="end_date">Fecha de Fin</label>
+            <input type="text" id="end-date" name="end_date" class="form-control datepicker">
+        </div>
+        <div class="form-group">
+            <label for="end_time">Hora de Fin (Formato: HH:MM)</label>
+            <input type="text" id="end-time" name="end_time" class="form-control" placeholder="HH:MM">
         </div>
         <div class="form-group">
             <label for="type">{{ form.type.label }}</label>
@@ -43,4 +50,20 @@
         </div>
     </form>
 </div>
+
+<!-- Incluir bibliotecas de JavaScript -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+<!-- Inicializar el selector de fecha -->
+<script>
+$(document).ready(function() {
+    // Inicializar los selectores de fecha
+    $('.datepicker').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        startDate: new Date()
+    });
+});
+</script>
 {% endblock %}

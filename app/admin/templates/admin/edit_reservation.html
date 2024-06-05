@@ -2,34 +2,51 @@
 {% extends 'dashboard_base.html' %}
 {% block main_content %}
         <h2 class="section-header">Editar Reserva</h2>
-<div class="edit-reservation">
-    <form method="POST" action="{{ url_for('admin.edit_reservation', reservation_id=reservation.id) }}">
+<div class="form-model">
+     <form method="POST" action="{{ url_for('admin.edit_reservation', reservation_id=reservation.id) }}">
         {{ form.csrf_token }}
-        <div>
-            {{ form.booking_id.label }} {{ form.booking_id }}
+        <div class="form-group">
+            <label for="booking_id">{{ form.booking_id.label }}</label>
+            {{ form.booking_id }}
         </div>
-        <div>
-            {{ form.start.label }} {{ form.start }}
+        <div class="form-group">
+            <label for="start_date">Fecha de Inicio</label>
+            <input type="text" id="start-date" name="start_date" class="form-control datepicker" value="{{ form.start_date.data }}">
         </div>
-        <div>
-            {{ form.end.label }} {{ form.end }}
+        <div class="form-group">
+            <label for="start_time">Hora de Inicio (Formato: HH:MM)</label>
+            <input type="text" id="start-time" name="start_time" class="form-control" placeholder="HH:MM" value="{{ form.start_time.data }}">
         </div>
-        <div>
-            {{ form.type.label }} {{ form.type }}
+        <div class="form-group">
+            <label for="end_date">Fecha de Fin</label>
+            <input type="text" id="end-date" name="end_date" class="form-control datepicker" value="{{ form.end_date.data }}">
         </div>
-        <div>
-            {{ form.requirement.label }} {{ form.requirement }}
+        <div class="form-group">
+            <label for="end_time">Hora de Fin (Formato: HH:MM)</label>
+            <input type="text" id="end-time" name="end_time" class="form-control" placeholder="HH:MM" value="{{ form.end_time.data }}">
         </div>
-        <div>
-            {{ form.adults.label }} {{ form.adults }}
+        <div class="form-group">
+            <label for="type">{{ form.type.label }}</label>
+            {{ form.type }}
         </div>
-        <div>
-            {{ form.children.label }} {{ form.children }}
+        <div class="form-group">
+            <label for="requirement">{{ form.requirement.label }}</label>
+            {{ form.requirement }}
         </div>
-        <div>
-            {{ form.requests.label }} {{ form.requests }}
+        <div class="form-group">
+            <label for="adults">{{ form.adults.label }}</label>
+            {{ form.adults }}
         </div>
-        <button type="submit">Actualizar Reserva</button>
+        <div class="form-group">
+            <label for="children">{{ form.children.label }}</label>
+            {{ form.children }}
+        </div>
+        <div class="form-group">
+            <label for="requests">{{ form.requests.label }}</label>
+            {{ form.requests }}
+        </div>
+        <button class="button edit" type="submit">Actualizar Reserva</button>
+        <a href="{{ url_for('admin.reservations') }}" class="custom-link">Volver</a>
     </form>
 </div>
 {% endblock %}

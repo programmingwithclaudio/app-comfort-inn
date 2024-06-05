@@ -1,17 +1,62 @@
-<!-- edit_bookings.html -->
+<!-- templates/admin/edit_booking.html -->
 {% extends 'dashboard_base.html' %}
 {% block main_content %}
-    <h2 class="">Edit Booking</h2>
-    <form method="POST" action="{{ url_for('admin.edit_booking', booking_id=booking.id) }}">
+<h2 class="section-header">Editar Reserva</h2>
+<div class="form-model">
+    <form method="POST" action="{{ url_for('admin.edit_bookings', booking_id=booking.id) }}">
+        {{ form.csrf_token }}
         <div class="form-group">
-            {{ form.cid.label }}: {{ form.cid }}
+            <label for="identifier">Identificador</label>
+            <input type="text" id="identifier" name="identifier" oninput="fetchCustomerName()" value="{{ booking.customer.identifier }}" required>
         </div>
         <div class="form-group">
-            {{ form.status.label }}: {{ form.status }}
+            <label for="fullname">Nombre Completo</label>
+            <input type="text" id="fullname" name="fullname" value="{{ booking.customer.fullname }}" readonly>
         </div>
         <div class="form-group">
-            {{ form.notes.label }}: {{ form.notes }}
+            {{ form.cid.label }}
+            <select id="customer_id" name="cid">
+                {% for customer in form.cid.choices %}
+                    <option value="{{ customer[0] }}">{{ customer[1] }} - {{ customer[2] }}</option>
+                {% endfor %}
+            </select>
         </div>
-        <button type="submit">Submit</button>
+        <div class="form-group">
+            {{ form.status.label }} {{ form.status }}
+        </div>
+        <div class="form-group">
+            {{ form.notes.label }} {{ form.notes }}
+        </div>
+        <button class="button add" type="submit">Actualizar Reserva</button>
+        <a href="{{ url_for('admin.booking') }}" class="custom-link">Volver</a>
     </form>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Prevenir el envío del formulario al presionar Enter en el campo "identifier"
+        $('#identifier').on('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                // Realizar la solicitud AJAX para autocompletar el campo "fullname"
+                var identifier = $(this).val();
+                if (identifier) {
+                    $.ajax({
+                        url: "{{ url_for('admin.get_customer_name') }}",
+                        type: 'GET',
+                        data: {'identifier': identifier},
+                        success: function(response) {
+                            $('#fullname').val(response.fullname);
+                            // También seleccionar automáticamente el cliente en el campo de selección
+                            $('#customer_id').val(response.cid);
+                        }
+                    });
+                } else {
+                    $('#fullname').val('');
+                    $('#customer_id').val('');
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}
