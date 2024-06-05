@@ -4,14 +4,27 @@
     <h2 class="section-header">Precios para las Reservas</h2>
     <div class="panel">
         <div class="panel__header">
-            <div class="input__wrapper">
+
                 <form action="{{ url_for('admin.pricing') }}" method="GET" class="input__wrapper">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="search" name="search" placeholder="Buscar..." value="{{ request.args.get('search', '') }}">
                     <button type="submit" class="button search">Buscar</button>
                 </form>
-            </div>
         </div>
+        <div class="panel__body">
+            <div class="filter__wrapper">
+                <div class="filter__controls">
+                    <span class="filter__label">Filters:</span>
+                    <select class="filter__select">
+                        <option value="all">All</option>
+                        <option value="this-week">This week</option>
+                        <option value="this-month">This month</option>
+                        <option value="completed">Completed</option>
+                        <option value="in-progress">In progress</option>
+                    </select>
+                </div>
+                <a href="{{ url_for('admin.add_pricing') }}" class="button add">Add Precios</a>
+            </div>
         <div class="panel__body">
             <div class="panel__table">
                 <table>

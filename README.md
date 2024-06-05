@@ -340,5 +340,157 @@ db.session.delete(booking)
 db.session.commit()
 ```
 
-Con estas opciones, puedes elegir el enfoque que mejor se adapte a tus necesidades y preferencias en cuanto a la gestión de reservas y reservaciones en tu aplicación.
+- Con estas opciones, puedes elegir el enfoque que mejor se adapte a tus necesidades y preferencias en cuanto a la gestión de reservas y reservaciones en tu aplicación.
+---
+Para implementar controles de tesorería, incluyendo el manejo de ingresos, egresos y flujo de caja financiero, se pueden agregar las siguientes clases y relaciones al Diagrama de Clases UML:
+
+```
++---------------+            +-------------+            +---------------+
+|   Customer    |            |   Booking   |            |    Pricing    |
++---------------+            +-------------+            +---------------+
+| -cid          |            | -id         |            | -pricing_id   |
+| -identifier   |            | -cid        |            | -booking_id   |
+| -fullname     |            | -status     |            | -nights       |
+| -email        |            | -notes      |            | -total_price  |
+| -phone        |            +-------------+            | -booked_date  |
++---------------+            |1    *|      |            +---------------+
+     |1        *|            +-------------+                    |1
+     +-----------------------+             |                    |
+                                           |                    |
+                                           |1                  *|
+                                           |                    |
+                                     +-------------+            |
+                                     |Reservation  |            |
+                                     +-------------+            |
+                                     | -id         |<>----------+
+                                     | -booking_id |
+                                     | -start      |
+                                     | -end        |
+                                     | -type       |
+                                     | -requirement|
+                                     | -adults     |
+                                     | -children   |
+                                     | -requests   |
+                                     | -timestamp  |
+                                     | -hash       |
+                                     +-------------+
+                                           |1
+                                           |
+                                           |*
+                                     +-------------+
+                                     |  Invoice    |
+                                     +-------------+
+                                     | -invoice_id |
+                                     | -booking_id |
+                                     | -issue_date |
+                                     | -due_date   |
+                                     | -subtotal   |
+                                     | -taxes      |
+                                     | -total      |
+                                     | -status     |
+                                     +-------------+
+                                           |1
+                                           |
+                                           |*
+                                     +-------------+
+                                     |  Supplier   |
+                                     +-------------+
+                                     | -supplier_id|
+                                     | -name       |
+                                     | -contact    |
+                                     | -address    |
+                                     +-------------+
+                                           |1
+                                           |
+                                           |*
+                                     +-------------+
+                                     |   Supply    |
+                                     +-------------+
+                                     | -supply_id  |
+                                     | -supplier_id|
+                                     | -item       |
+                                     | -quantity   |
+                                     | -cost       |
+                                     | -date       |
+                                     +-------------+
+                                           |1
+                                           |
+                                           |*
+                                     +-------------+
+                                     |CashFlow     |
+                                     +-------------+
+                                     | -flow_id    |
+                                     | -date       |
+                                     | -type       |
+                                     | -amount     |
+                                     | -description|
+                                     +-------------+
+                                           |1
+                                           |
+                                           |*
+                                     +-------------+
+                                     |Account      |
+                                     +-------------+
+                                     | -account_id |
+                                     | -name       |
+                                     | -type       |
+                                     | -balance    |
+                                     +-------------+
+                                           |1
+                                           |
+                                           |*
+                                     +-------------+
+                                     |Bank         |
+                                     +-------------+
+                                     | -bank_id    |
+                                     | -name       |
+                                     | -account_id |
+                                     +-------------+
+```
+
+En este diagrama, se han agregado las siguientes clases:
+
+1. **CashFlow**:
+   - `flow_id`: Un identificador único para el movimiento de efectivo.
+   - `date`: La fecha en la que se realizó el movimiento.
+   - `type`: El tipo de movimiento (ingreso o egreso).
+   - `amount`: El monto del movimiento.
+   - `description`: Una descripción del movimiento.
+
+2. **Account**:
+   - `account_id`: Un identificador único para la cuenta.
+   - `name`: El nombre de la cuenta.
+   - `type`: El tipo de cuenta (por ejemplo, efectivo, bancaria, etc.).
+   - `balance`: El saldo actual de la cuenta.
+
+3. **Bank**:
+   - `bank_id`: Un identificador único para el banco.
+   - `name`: El nombre del banco.
+   - `account_id`: El identificador de la cuenta bancaria asociada.
+
+Las relaciones entre las clases son las siguientes:
+
+- Una `Invoice` puede tener uno o más `CashFlow` asociados (relación 1 a *).
+- Un `CashFlow` está asociado a una `Account` (relación 1 a 1).
+- Una `Account` puede estar asociada a un `Bank` (relación 1 a 1).
+
+**Implementación**:
+
+1. **Ingresos**: Cuando se genera una factura (`Invoice`) para una reserva (`Booking`), se crea un movimiento de efectivo (`CashFlow`) de tipo "ingreso" con el monto total de la factura. Este ingreso se asocia a una cuenta de ingresos (`Account`) y se actualiza el saldo de dicha cuenta.
+
+2. **Egresos**: Cuando se realiza un suministro (`Supply`), se crea un movimiento de efectivo (`CashFlow`) de tipo "egreso" con el costo del suministro. Este egreso se asocia a una cuenta de egresos (`Account`) y se actualiza el saldo de dicha cuenta.
+
+3. **Flujo de Caja**: El flujo de caja se puede calcular sumando todos los ingresos y restando todos los egresos en un período de tiempo determinado. Se pueden crear informes de flujo de caja utilizando los movimientos de efectivo (`CashFlow`) y los saldos de las cuentas (`Account`).
+
+4. **Cuentas Bancarias**: Las cuentas bancarias (`Bank`) pueden estar asociadas a cuentas de efectivo (`Account`) para representar los saldos de las cuentas bancarias.
+
+**Patrones de Diseño**:
+
+1. **Patrón de Fachada**: Se puede utilizar el patrón de fachada para proporcionar una interfaz simplificada para la gestión de tesorería. Una clase `TreasuryManagementFacade` podría encapsular la lógica de negocios relacionada con el manejo de ingresos, egresos, flujo de caja y cuentas bancarias, ocultando los detalles de implementación de las clases subyacentes.
+
+2. **Patrón de Repositorio**: Se puede implementar el patrón de repositorio para abstraer la lógica de acceso a datos de los modelos `CashFlow`, `Account` y `Bank`. Se crearían repositorios separados que encapsulen las operaciones CRUD para cada uno de estos modelos.
+
+3. **Patrón de Observador**: Si se requiere notificar a otros componentes del sistema cuando se realiza un movimiento de efectivo o se actualiza el saldo de una cuenta, se puede implementar el patrón de observador. Las clases `CashFlow` y `Account` podrían ser los sujetos observables, y otros componentes como el sistema de contabilidad o el sistema de reportes podrían suscribirse como observadores para recibir actualizaciones.
+
+- Esta implementación sigue los principios de diseño orientado a objetos y los patrones de diseño relevantes, lo que facilita la extensibilidad, mantenibilidad y flexibilidad del sistema de gestión de tesorería y flujo de caja financiero.
 ---

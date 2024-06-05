@@ -15,17 +15,21 @@
         </div>
         <div class="panel__body">
             <div class="filter__wrapper">
-            <span class="filter__label">Filters:</span>
-            <select class="filter__select">
-                <option value="all">All</option>
-                <option value="this-week">This week</option>
-                <option value="this-month">This month</option>
-                <option value="completed">Completed</option>
-                <option value="in-progress">In progress</option>
-            </select>
-            <a href="{{ url_for('admin.add_booking') }}" class="button add">Add Booking</a>
+
+                <div class="filter__controls">
+                    <span class="filter__label">Filters:</span>
+                    <select class="filter__select">
+                        <option value="all">All</option>
+                        <option value="this-week">This week</option>
+                        <option value="this-month">This month</option>
+                        <option value="completed">Completed</option>
+                        <option value="in-progress">In progress</option>
+                    </select>
+                </div>
+                <a href="{{ url_for('admin.add_booking') }}" class="button add">Add Booking</a>
+            </div>
         </div>
-            <div class="panel__table">
+        <div class="panel__table">
     <table>
         <thead>
             <tr>
@@ -57,7 +61,7 @@
     </table>
             </div>
     </div>
-</div>
+
         <!-- Agrega esta parte dentro de tu bloque main_content en customer.html -->
     <div class="pagination">
         {% if bookings.has_prev %}

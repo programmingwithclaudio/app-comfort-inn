@@ -42,11 +42,13 @@ body, html {
 .header .navigation li a,
 .header .auth a {
     color: var(--secondary-color);
+    text-decoration: none; /* Esta línea quitará el subrayado */
 }
 
 .header .auth .signup a {
     background: var(--primary-color);
     color: var(--background-color);
+    text-decoration: none;
 }
 
 .menu-icon {

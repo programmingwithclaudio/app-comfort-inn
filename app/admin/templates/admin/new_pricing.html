@@ -1,10 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<!-- templates/admin/new_pricing.html -->
+{% extends 'dashboard_base.html' %}
 
-</body>
-</html>
+{% block main_content %}
+    <h2 class="section-header">Agregar Nuevo Precio</h2>
+<div class="form-model">
+    <form action="{{ url_for('admin.add_pricing') }}" method="POST" class="form">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            <label for="booking_id">{{ form.booking_id.label }}</label>
+            {{ form.booking_id(class="form__control") }}
+        </div>
+        <div class="form-group">
+            <label for="nights">{{ form.nights.label }}</label>
+            {{ form.nights(class="form__control") }}
+        </div>
+        <div class="form-group">
+            <label for="total_price">{{ form.total_price.label }}</label>
+            {{ form.total_price(class="form__control") }}
+        </div>
+        <div class="form-group">
+            <label for="booked_date">{{ form.booked_date.label }}</label>
+            {{ form.booked_date(class="form__control") }}
+        </div>
+        <button class="button add" type="submit">Añadir Precios</button>
+        <a href="{{ url_for('admin.pricing') }}" class="custom-link">Volver</a>
+    </form>
+    </div>
+    </div>
+{% endblock %}

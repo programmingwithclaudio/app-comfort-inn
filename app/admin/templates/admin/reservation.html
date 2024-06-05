@@ -11,6 +11,7 @@
     </div>
     <div class="panel__body">
         <div class="filter__wrapper">
+            <div class="filter__controls">
             <span class="filter__label">Filters:</span>
             <select class="filter__select">
                 <option value="all">All</option>
@@ -19,6 +20,7 @@
                 <option value="completed">Completed</option>
                 <option value="in-progress">In progress</option>
             </select>
+            </div>
             <a href="{{ url_for('admin.add_reservation') }}" class="button add">+ Add New</a>
         </div>
         <div class="panel__table">

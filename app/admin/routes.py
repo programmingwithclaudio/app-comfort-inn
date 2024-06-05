@@ -145,30 +145,45 @@ def add_reservation():
 
 
 @admin_bp.route('/dashboard/reservations/<int:reservation_id>/edit', methods=['GET', 'POST'])
+@login_required
 def edit_reservation(reservation_id):
-    reservation = Reservation.find_by_id(reservation_id)
+    reservation = Reservation.query.get_or_404(reservation_id)
     form = ReservationForm(obj=reservation)
-    form.booking_id.choices = [(booking.id, f"Booking ID: {booking.id} - Customer: {booking.customer.fullname} - Status: {booking.status}") for booking in Booking.query.all()]
-
-    # Asignar los valores de fecha y hora del objeto de reserva al formulario
-    form.start_date.data = reservation.start.date()
-    form.start_time.data = reservation.start.strftime('%H:%M')
-    form.end_date.data = reservation.end.date()
-    form.end_time.data = reservation.end.strftime('%H:%M')
+    form.booking_id.choices = [
+        (booking.id, f"Booking ID: {booking.id} - Customer: {booking.customer.fullname} - Status: {booking.status}")
+        for booking in Booking.query.all()
+    ]
 
     if form.validate_on_submit():
-        reservation.booking_id = form.booking_id.data
-        reservation.start = form.start.data
-        reservation.end = form.end.data
-        reservation.type = form.type.data
-        reservation.requirement = form.requirement.data
-        reservation.adults = form.adults.data
-        reservation.children = form.children.data
-        reservation.requests = form.requests.data
-        reservation.save()
-        return redirect(url_for('admin.reservations'))
-    return render_template('admin/edit_reservation.html', form=form, reservation=reservation)
+        try:
+            if form.start_date.data and form.start_time.data and form.end_date.data and form.end_time.data:
+                # Concatenar la fecha y la hora de las entradas del formulario
+                start_datetime_str = f"{form.start_date.data} {form.start_time.data}"
+                end_datetime_str = f"{form.end_date.data} {form.end_time.data}"
 
+                # Convertir a objetos datetime
+                start_date = datetime.strptime(start_datetime_str, '%Y-%m-%d %H:%M')
+                end_date = datetime.strptime(end_datetime_str, '%Y-%m-%d %H:%M')
+
+                reservation.booking_id = form.booking_id.data
+                reservation.start = start_date
+                reservation.end = end_date
+                reservation.type = form.type.data
+                reservation.requirement = form.requirement.data
+                reservation.adults = form.adults.data
+                reservation.children = form.children.data
+                reservation.requests = form.requests.data
+                reservation.save()
+
+                flash('Reserva actualizada con éxito', 'success')
+                return redirect(url_for('admin.reservations'))
+            else:
+                raise ValueError("Las fechas y horas no pueden estar vacías.")
+        except ValueError as e:
+            flash('Por favor, ingresa las fechas y horas en el formato correcto.', 'danger')
+            print(f"Error: {e}")
+
+    return render_template('admin/edit_reservation.html', form=form, reservation=reservation)
 
 
 @admin_bp.route('/dashboard/reservations/<int:reservation_id>/delete', methods=['POST'])
@@ -255,6 +270,27 @@ def pricing():
         pricings = Pricing.query.paginate(page=page, per_page=per_page)
 
     return render_template('admin/pricing.html', pricings=pricings)
+
+
+@admin_bp.route('/dashboard/pricing/new', methods=['GET', 'POST'])
+@login_required
+def add_pricing():
+    form = PricingForm()
+    form.booking_id.choices = [
+        (booking.id, f"ID: {booking.id} - Cliente: {booking.customer.fullname} - Estado: {booking.status}") for booking in Booking.query.all()
+    ]
+
+    if form.validate_on_submit():
+        new_pricing = Pricing(
+            booking_id=form.booking_id.data,
+            nights=form.nights.data,
+            total_price=form.total_price.data,
+            booked_date=form.booked_date.data
+        )
+        new_pricing.save()
+        flash('Nuevo precio agregado con éxito', 'success')
+        return redirect(url_for('admin.pricing'))
+    return render_template('admin/new_pricing.html', form=form)
 
 
 @admin_bp.route('/dashboard/pricing/<int:booking_id>', methods=['GET', 'POST'])

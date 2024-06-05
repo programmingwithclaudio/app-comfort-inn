@@ -52,10 +52,11 @@ class CustomerForm(FlaskForm):
 
 
 class PricingForm(FlaskForm):
+    booking_id = SelectField('Booking', validators=[DataRequired()])
     nights = IntegerField('Nights', validators=[InputRequired()])
     total_price = FloatField('Total Price', validators=[InputRequired()])
     booked_date = DateField('Booked Date', validators=[InputRequired()], format='%Y-%m-%d')
-
+    submit = SubmitField('Agregar Precio')
 
 
 

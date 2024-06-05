@@ -1,9 +1,9 @@
 <!-- edit_reservation.html -->
 {% extends 'dashboard_base.html' %}
 {% block main_content %}
-        <h2 class="section-header">Editar Reserva</h2>
+<h2 class="section-header">Editar Reserva</h2>
 <div class="form-model">
-     <form method="POST" action="{{ url_for('admin.edit_reservation', reservation_id=reservation.id) }}">
+    <form method="POST" action="{{ url_for('admin.edit_reservation', reservation_id=reservation.id) }}">
         {{ form.csrf_token }}
         <div class="form-group">
             <label for="booking_id">{{ form.booking_id.label }}</label>
@@ -49,4 +49,19 @@
         <a href="{{ url_for('admin.reservations') }}" class="custom-link">Volver</a>
     </form>
 </div>
+    <!-- Incluir bibliotecas de JavaScript -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+    <!-- Inicializar el selector de fecha -->
+    <script>
+    $(document).ready(function() {
+        // Inicializar los selectores de fecha
+        $('.datepicker').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            startDate: new Date()
+        });
+    });
+    </script>
 {% endblock %}

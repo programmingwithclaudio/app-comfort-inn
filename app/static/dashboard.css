@@ -180,6 +180,7 @@ main {
     display: flex;
     align-items: center;
     width: 50%;
+    position: relative;
 }
 
 .panel__header .input__wrapper input {
@@ -191,8 +192,10 @@ main {
     color: #333;
 }
 
+/* div panel__body*/
 .filter__wrapper {
     display: flex;
+    justify-content: space-between; /* Distribuye los elementos a lo largo del contenedor */
     align-items: center;
     margin-bottom: 20px;
 }
@@ -209,6 +212,12 @@ main {
     border-radius: 5px;
 }
 
+.filter__controls {
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* Hace que el contenedor de los filtros ocupe todo el espacio disponible */
+}
+/* sss */
 
 
 .panel__table {
@@ -348,6 +357,7 @@ main {
 .button.delete {
     color: white;
     text-decoration: none;
+
 }
 
 .button.search:hover,
@@ -391,6 +401,7 @@ main {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+
 }
 
 .button.add:hover {
