@@ -1,0 +1,21 @@
+{% extends 'dashboard_base.html' %}
+{% block main_content %}
+    <h2 class="section-header">Editar Cliente</h2>
+    <div class="form-model">
+    <form method="POST" action="{{ url_for('admin.edit_supplier', supplier_id=supplier.supplier_id) }}">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            {{ form.name.label }} {{ form.name }}
+        </div>
+        <div class="form-group">
+            {{ form.contact.label }} {{ form.contact }}
+        </div>
+        <div class="form-group">
+            {{ form.address.label }} {{ form.address }}
+        </div>
+        <button class="button edit" type="submit">Actualizar</button>
+        <a href="{{ url_for('admin.customers') }}" class="custom-link">Volver</a>
+    </form>
+    </div>
+{% endblock %}
+

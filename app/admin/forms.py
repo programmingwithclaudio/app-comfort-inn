@@ -1,9 +1,8 @@
 # admin/forms.py
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SelectField, IntegerField, FloatField, DateField
-from wtforms.validators import DataRequired, Email, Regexp, NumberRange
+from wtforms.validators import DataRequired, InputRequired, Email, Regexp, NumberRange, Optional
 from wtforms import SubmitField
-from wtforms.validators import InputRequired
 
 
 class AddCourseForm(FlaskForm):
@@ -59,6 +58,54 @@ class PricingForm(FlaskForm):
     submit = SubmitField('Agregar Precio')
 
 
+class AccountForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    type = SelectField('Type', choices=[('ASSET', 'ASSET'), ('LIABILITY', 'LIABILITY'), ('EQUITY', 'EQUITY'), ('REVENUE', 'REVENUE'), ('EXPENSE', 'EXPENSE')], validators=[DataRequired()])
+    balance = FloatField('Balance', validators=[DataRequired(), NumberRange(min=0)])
+    submit = SubmitField('Submit')
+
+
+class CashFlowForm(FlaskForm):
+    date = DateField('Date', validators=[DataRequired()])
+    type = SelectField('Type', choices=[('INCOME', 'INCOME'), ('EXPENSE', 'EXPENSE')], validators=[DataRequired()])
+    amount = FloatField('Amount', validators=[DataRequired(), NumberRange(min=0)])
+    description = TextAreaField('Description', validators=[Optional()])
+    account_id = SelectField('Account', coerce=int, validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+
+class InvoiceForm(FlaskForm):
+    booking_id = IntegerField('Booking ID', validators=[DataRequired()])
+    issue_date = DateField('Issue Date', validators=[DataRequired()])
+    due_date = DateField('Due Date', validators=[DataRequired()])
+    subtotal = FloatField('Subtotal', validators=[DataRequired(), NumberRange(min=0)])
+    taxes = FloatField('Taxes', validators=[DataRequired(), NumberRange(min=0)])
+    total = FloatField('Total', validators=[DataRequired(), NumberRange(min=0)])
+    status = SelectField('Status', choices=[('PENDING', 'PENDING'), ('PAID', 'PAID'), ('OVERDUE', 'OVERDUE')], validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+
+class SupplierForm(FlaskForm):
+    identifier = StringField('Identificador completo', validators=[DataRequired()])
+    fullname = StringField('Nombre completo', validators=[DataRequired()])
+    contact = StringField('Contact', validators=[DataRequired()])
+    address = TextAreaField('Address', validators=[Optional()])
+    submit = SubmitField('Submit')
+
+
+class SupplyForm(FlaskForm):
+    supplier_id = SelectField('Supplier', coerce=int, validators=[DataRequired()])
+    item = StringField('Item', validators=[DataRequired()])
+    quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=1)])
+    cost = FloatField('Cost', validators=[DataRequired(), NumberRange(min=0)])
+    date = DateField('Date', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+
+class BankForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    account_id = SelectField('Account', coerce=int, validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 
 

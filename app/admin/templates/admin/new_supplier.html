@@ -1,0 +1,23 @@
+{% extends 'dashboard_base.html' %}
+{% block main_content %}
+    <h2 class="section-header">Añadir Cliente</h2>
+    <div class="form-model">
+    <form method="POST" action="{{ url_for('admin.add_supplier') }}">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            {{ form.identifier.label }} {{ form.identifier }}
+        </div>
+        <div class="form-group">
+            {{ form.fullname.label }} {{ form.fullname }}
+        </div>
+        <div class="form-group">
+            {{ form.contact.label }} {{ form.contact }}
+        </div>
+        <div class="form-group">
+            {{ form.address.label }} {{ form.address }}
+        </div>
+        <button class="button add" type="submit">Guardar</button>
+        <a href="{{ url_for('admin.suppliers') }}" class="custom-link">Volver</a>
+    </form>
+    </div>
+{% endblock %}

@@ -1,8 +1,10 @@
 # admin/routes.py
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, logout_user, current_user
-from .forms import AddCourseForm, ReservationForm, BookingForm, CustomerForm, PricingForm
-from .models import Customer, Booking, Pricing, Reservation
+from .forms import (AddCourseForm, ReservationForm, BookingForm, CustomerForm, PricingForm,
+                    BookingForm, CustomerForm, PricingForm, AccountForm, CashFlowForm, InvoiceForm, SupplierForm,
+                    SupplyForm, BankForm)
+from .models import Customer, Booking, Pricing, Reservation, Account, CashFlow, Invoice, Supplier, Supply, Bank
 from . import admin_bp
 from ..models import User
 from datetime import datetime
@@ -198,6 +200,7 @@ def delete_reservation(reservation_id):
     return redirect(url_for('admin.reservations'))
 
 
+# Clientes y Proveedores
 @admin_bp.route('/dashboard/customers')
 @login_required
 def customers():
@@ -258,6 +261,66 @@ def delete_customer(customer_id):
     return redirect(url_for('admin.customers'))
 
 
+@admin_bp.route('/dashboard/suppliers')
+@login_required
+def suppliers():
+    search_term = request.args.get('search', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+
+    if search_term:
+        suppliers = Supplier.query.filter(Supplier.identifier.ilike(f'%{search_term}%')).paginate(page=page, per_page=per_page)
+    else:
+        suppliers = Supplier.query.paginate(page=page, per_page=per_page)
+
+    return render_template('admin/supplier.html', suppliers=suppliers)
+
+
+@admin_bp.route('/dashboard/suppliers/add', methods=['GET', 'POST'])
+@login_required
+def add_supplier():
+    form = SupplierForm()
+    if form.validate_on_submit():
+        supplier = Supplier(
+            identifier=form.identifier.data,
+            fullname=form.name.data,
+            contact=form.contact.data,
+            address=form.address.data
+        )
+        supplier.save()
+        flash('Proveedor añadido con éxito', 'success')
+        return redirect(url_for('admin.suppliers'))
+    return render_template('admin/new_supplier.html', form=form)
+
+
+@admin_bp.route('/dashboard/suppliers/<int:supplier_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_supplier(supplier_id):
+    supplier = Supplier.query.get_or_404(supplier_id)
+    form = SupplierForm(obj=supplier)
+    if form.validate_on_submit():
+        supplier.identifier = form.identifier.data
+        supplier.fullname = form.fullname.data
+        supplier.contact = form.contact.data
+        supplier.address = form.address.data
+        supplier.save()
+        flash('Proveedor actualizado con éxito', 'success')
+        return redirect(url_for('admin.suppliers'))
+    return render_template('admin/edit_supplier.html', form=form, supplier=supplier)
+
+
+@admin_bp.route('/dashboard/suppliers/<int:supplier_id>/delete', methods=['POST'])
+@login_required
+def delete_supplier(supplier_id):
+    supplier = Supplier.find_by_id(supplier_id)
+    if supplier:
+        supplier.delete()
+        flash('Proveedor eliminado con éxito', 'success')
+    else:
+        flash('Proveedor no encontrado', 'danger')
+    return redirect(url_for('admin.suppliers'))
+
+# pricing y/u otros
 @admin_bp.route('/dashboard/pricing')
 def pricing():
     search_term = request.args.get('search', '')

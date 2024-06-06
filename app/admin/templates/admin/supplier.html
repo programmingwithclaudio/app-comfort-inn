@@ -1,0 +1,67 @@
+<!-- supplier.html -->
+{% extends 'dashboard_base.html' %}
+{% block main_content %}
+    <h2 class="section-header">Gestión de Proveedores</h2>
+    <div class="panel">
+        <div class="panel__header">
+            <form action="{{ url_for('admin.suppliers') }}" method="GET" class="input__wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" name="search" placeholder="Buscar..." value="{{ request.args.get('search', '') }}">
+                <button type="submit" class="button search">Buscar</button>
+            </form>
+            <a href="{{ url_for('admin.add_supplier') }}" class="button add">Añadir Proveedor</a>
+        </div>
+        <div class="panel__table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Identificador</th>
+                        <th>Nombre</th>
+                        <th>Contacto</th>
+                        <th>Dirección</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for supplier in suppliers.items %}
+                    <tr>
+                        <td>{{ supplier.supplier_id }}</td>
+                        <td>{{ supplier.identifier }}</td>
+                        <td>{{ supplier.fullname }}</td>
+                        <td>{{ supplier.contact }}</td>
+                        <td>{{ supplier.address }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.edit_supplier', supplier_id=supplier.supplier_id) }}" class="button edit">Editar</a>
+                            <form action="{{ url_for('admin.delete_supplier', supplier_id=supplier.supplier_id) }}" method="post" style="display:inline;">
+                                <button type="submit" class="button delete">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="pagination">
+        {% if suppliers.has_prev %}
+            <a href="{{ url_for('admin.suppliers', page=suppliers.prev_num) }}">Anterior</a>
+        {% endif %}
+
+        {% for page_num in suppliers.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == suppliers.page %}
+                    <strong>{{ page_num }}</strong>
+                {% else %}
+                    <a href="{{ url_for('admin.suppliers', page=page_num) }}">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                ...
+            {% endif %}
+        {% endfor %}
+
+        {% if suppliers.has_next %}
+            <a href="{{ url_for('admin.suppliers', page=suppliers.next_num) }}">Siguiente</a>
+        {% endif %}
+    </div>
+{% endblock %}
