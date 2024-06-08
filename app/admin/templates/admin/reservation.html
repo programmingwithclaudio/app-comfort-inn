@@ -27,6 +27,8 @@
             <table>
                 <thead>
                     <tr>
+                        <th>Booking ID</th>
+                        <th>Customer Name</th>
                         <th>Inicio</th>
                         <th>Fin</th>
                         <th>Tipo</th>
@@ -38,8 +40,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for reservation in reservations %}
+                    {% for reservation in reservations.items %}
                     <tr>
+                        <td>{{ reservation.booking.id }}</td>
+                        <td>{{ reservation.booking.customer_detail.fullname }}</td>
                         <td>{{ reservation.start }}</td>
                         <td>{{ reservation.end }}</td>
                         <td>{{ reservation.type }}</td>
@@ -60,5 +64,26 @@
         </div>
     </div>
 </div>
+    <!-- Agrega esta parte dentro de tu bloque main_content en customer.html -->
+    <div class="pagination">
+        {% if reservations.has_prev %}
+            <a href="{{ url_for('admin.reservations', page=reservations.prev_num) }}">Previous</a>
+        {% endif %}
 
+        {% for page_num in reservations.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == reservations.page %}
+                    <strong>{{ page_num }}</strong>
+                {% else %}
+                    <a href="{{ url_for('admin.reservations', page=page_num) }}">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                ...
+            {% endif %}
+        {% endfor %}
+
+        {% if reservations.has_next %}
+            <a href="{{ url_for('admin.reservations', page=reservations.next_num) }}">Next</a>
+        {% endif %}
+    </div>
 {% endblock %}

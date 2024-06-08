@@ -2,22 +2,23 @@
 {% block main_content %}
     <h2 class="section-header">Añadir Cliente</h2>
     <div class="form-model">
-    <form method="POST" action="{{ url_for('admin.add_customer') }}">
-        {{ form.csrf_token }}
-        <div class="form-group">
-            {{ form.identifier.label }} {{ form.identifier }}
-        </div>
-        <div class="form-group">
-            {{ form.fullname.label }} {{ form.fullname }}
-        </div>
-        <div class="form-group">
-            {{ form.email.label }} {{ form.email }}
-        </div>
-        <div class="form-group">
-            {{ form.phone.label }} {{ form.phone }}
-        </div>
-        <button class="button add" type="submit">Guardar</button>
-        <a href="{{ url_for('admin.customers') }}" class="custom-link">Volver</a>
-    </form>
+        <form method="POST" action="{{ url_for('admin.add_customer') }}">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                {{ form.identifier.label }} {{ form.identifier }}
+            </div>
+            <div class="form-group">
+                {{ form.fullname.label }} {{ form.fullname }}
+            </div>
+            <div class="form-group">
+                {{ form.email.label }} {{ form.email }}
+            </div>
+            <div class="form-group">
+                {{ form.phone.label }} {{ form.phone }}
+            </div>
+            <button class="button add" type="submit">Guardar</button>
+            <a href="{{ url_for('admin.customers') }}" class="custom-link">Volver</a>
+        </form>
     </div>
 {% endblock %}
+

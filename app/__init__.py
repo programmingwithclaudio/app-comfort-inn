@@ -2,13 +2,12 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from sqlalchemy import Enum
+from sqlalchemy import text
 from flask_bootstrap import Bootstrap
 
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
-
 
 def create_app(settings_module):
     app = Flask(__name__)
@@ -19,12 +18,23 @@ def create_app(settings_module):
     migrate.init_app(app, db)
     login_manager.init_app(app)
     login_manager.login_view = "signin"
-    # blueprints
+
+    # Blueprints
     from app.admin import admin_bp
     from app.auth import auth_bp
 
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
 
+    with app.app_context():
+        # Inicializar la secuencia
+        initialize_sequence()
+
     return app
 
+def initialize_sequence():
+    """Inicializa la secuencia de la tabla customer"""
+    with db.engine.connect() as connection:
+        connection.execute(
+            text("SELECT setval('customer_cid_seq', (SELECT COALESCE(MAX(cid), 1) FROM customer))")
+        )

@@ -14,7 +14,6 @@ class Customer(db.Model, UserMixin):
     email = db.Column(db.String(50), nullable=False, unique=True)
     phone = db.Column(db.String(25), nullable=True)
 
-    # Renombramos el backref
     customer_bookings = db.relationship('Booking', backref='customer', lazy=True)
 
     @classmethod
@@ -28,6 +27,10 @@ class Customer(db.Model, UserMixin):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+    @staticmethod
+    def rollback():
+        db.session.rollback()
 
 
 class Booking(db.Model):
@@ -234,4 +237,3 @@ class Bank(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
-

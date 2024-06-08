@@ -5,6 +5,14 @@ from wtforms.validators import DataRequired, InputRequired, Email, Regexp, Numbe
 from wtforms import SubmitField
 
 
+class CustomerForm(FlaskForm):
+    identifier = StringField('Identifier', validators=[DataRequired()])
+    fullname = StringField('Full Name', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    phone = StringField('Phone', validators=[Optional()])
+    submit = SubmitField('Agregar Cliente')
+
+
 class AddCourseForm(FlaskForm):
     professor = StringField("Profesor:", validators=[DataRequired(message="Nombre del profesor")])
     title = StringField("Titulo:", validators=[DataRequired(message="Ingresa el título del curso")])
@@ -41,13 +49,6 @@ class BookingForm(FlaskForm):
     cid = SelectField('Cliente', coerce=int, validators=[DataRequired()])
     status = SelectField('Estado', choices=[('PENDING', 'PENDING'), ('CONFIRMED', 'CONFIRMED'), ('CANCELLED', 'CANCELLED')], validators=[DataRequired()])
     notes = TextAreaField('Notas')
-
-
-class CustomerForm(FlaskForm):
-    identifier = StringField('Identificador completo', validators=[DataRequired()])
-    fullname = StringField('Nombre completo', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    phone = StringField('Teléfono')
 
 
 class PricingForm(FlaskForm):

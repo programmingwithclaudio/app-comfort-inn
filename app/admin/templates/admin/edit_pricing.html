@@ -1,0 +1,21 @@
+<!-- edit_pricing.html -->
+{% extends 'dashboard_base.html' %}
+{% block main_content %}
+    <h2 class="section-header">Editar Precio</h2>
+    <div class="form-model">
+        <form method="POST" action="{{ url_for('admin.pricing_edit', pricing_id=pricing.pricing_id) }}">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                {{ form.nights.label }} {{ form.nights }}
+            </div>
+            <div class="form-group">
+                {{ form.total_price.label }} {{ form.total_price }}
+            </div>
+            <div class="form-group">
+                {{ form.booked_date.label }} {{ form.booked_date }}
+            </div>
+            <button class="button edit" type="submit">Actualizar</button>
+            <a href="{{ url_for('admin.pricing') }}" class="custom-link">Volver</a>
+        </form>
+    </div>
+{% endblock %}

@@ -16,15 +16,18 @@
         <div class="panel__body">
             <div class="filter__wrapper">
 
+                <!-- Agrega este formulario de filtro dentro del bloque main_content en bookings.html -->
                 <div class="filter__controls">
-                    <span class="filter__label">Filters:</span>
-                    <select class="filter__select">
-                        <option value="all">All</option>
-                        <option value="this-week">This week</option>
-                        <option value="this-month">This month</option>
-                        <option value="completed">Completed</option>
-                        <option value="in-progress">In progress</option>
-                    </select>
+                    <form action="{{ url_for('admin.booking') }}" method="GET">
+                        <span class="filter__label">Filters:</span>
+                        <select name="status" class="filter__select">
+                            <option value="">All</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="CONFIRMED">Confirmed</option>
+                            <option value="CANCELLED">Cancelled</option>
+                        </select>
+                        <button type="submit" class="button filter">Apply</button>
+                    </form>
                 </div>
                 <a href="{{ url_for('admin.add_booking') }}" class="button add">Add Booking</a>
             </div>
@@ -51,7 +54,7 @@
                     <a href="{{ url_for('admin.edit_bookings', booking_id=booking.id) }}" class="button edit">Editar</a>
 
                     <!-- Add delete option if needed -->
-                    <form action="{{ url_for('admin.delete_reservation', reservation_id=booking.id) }}" method="post" style="display:inline;">
+                    <form action="{{ url_for('admin.delete_booking', booking_id=booking.id) }}" method="post" style="display:inline;">
                         <button type="submit" class="button delete">Delete</button>
                     </form>
                 </td>
