@@ -1,9 +1,22 @@
-<!-- new_reservation.html -->
+<!-- templates/admin/new_reservation.html -->
 {% extends 'dashboard_base.html' %}
+
 {% block main_content %}
 <h2 class="section-header">Nueva Reserva</h2>
+
+<!-- Mostrar mensajes de flash -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
 <div class="form-model">
-    <form method="POST" action="{{ url_for('admin.add_reservation') }}">
+    <form method="POST" action="{{ url_for('admin.add_reservation') }}" id="reservation-form">
         {{ form.csrf_token }}
         <div class="form-group">
             <label for="booking_id">{{ form.booking_id.label }}</label>
@@ -47,7 +60,6 @@
         </div>
         <button class="button add" type="submit">+ Crear Reserva</button>
         <a href="{{ url_for('admin.reservations') }}" class="custom-link">Volver</a>
-
     </form>
 </div>
 
@@ -55,7 +67,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 
-<!-- Inicializar el selector de fecha y manejar envío del formulario -->
+<!-- Inicializar el selector de fecha -->
 <script>
 $(document).ready(function() {
     // Inicializar los selectores de fecha
@@ -63,25 +75,6 @@ $(document).ready(function() {
         format: 'yyyy-mm-dd',
         autoclose: true,
         startDate: new Date()
-    });
-
-    // Manejar envío del formulario
-    $('#reservation-form').submit(function(event) {
-        event.preventDefault();
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: $(this).serialize(),
-            success: function(response) {
-                // Redirigir si no hay error
-                window.location.href = response.redirect;
-            },
-            error: function(xhr, status, error) {
-                // Mostrar mensaje de error si hay un error
-                var errorMessage = JSON.parse(xhr.responseText).error;
-                alert(errorMessage);
-            }
-        });
     });
 });
 </script>

@@ -498,3 +498,179 @@ main {
 .datepicker-dropdown {
     position: absolute;
 }
+
+/* dashboard */
+/* Dashboard Container */
+.dashboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    background: linear-gradient(to right, #2c2c54, #201b4d);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* KPI Section */
+.kpi-section {
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.kpi-cards {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.kpi-card {
+    background: linear-gradient(to bottom, #4d4d9d, #3b3b6d);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    max-width: 300px;
+    width: 100%;
+    transition: transform 0.3s ease-in-out;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+}
+
+.kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.kpi-title {
+    color: #fff;
+    font-size: 1.2rem;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.kpi-icon {
+    font-size: 2rem;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.kpi-info {
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.kpi-info p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.income,
+.growth-rate,
+.occupancy-rate,
+.cancellations-count {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Dashboard Graphics */
+
+.graphics-content {
+    /* Estilos para el contenedor de los gráficos */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.dashboard-flex {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.kpi-section {
+    flex: 0 0 100%; /* Ocupa el 100% del ancho en una nueva línea */
+}
+
+.dashboard-graphics {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    flex: 0 0 100%; /* Ocupa todo el ancho del contenedor */
+
+}
+.graphics-column {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* Dos gráficos por columna */
+    gap: 1rem; /* Espacio entre los gráficos */
+}
+
+.widget {
+    border-radius: 0.75rem;
+    background-color: #181818;
+    padding: 1rem;
+    max-width: 40rem;
+    width: 100%;
+    min-width: 20rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    max-height: 410px; /* Altura máxima */
+    height: 450px; /* Altura fija */
+    margin: 0 1rem 1rem;
+    overflow: hidden;
+}
+
+.widget-title {
+    color: #fff;
+    margin-bottom: 1rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    max-width: 100%; /* Establece un ancho máximo */
+    overflow: hidden; /* Recorta el texto que se desborde */
+    text-overflow: ellipsis; /* Muestra puntos suspensivos (...) cuando el texto se desborde */
+    white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+    font-size: 1rem
+}
+
+.widget canvas {
+    min-height: 20rem;
+    width: 100%;
+    height: 100%;/* Ajusta este valor según tus necesidades */
+
+}
+
+
+/* alerts */
+/* Estilos CSS para alertas */
+.alert-container {
+    margin-bottom: 20px;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-danger {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+.alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}

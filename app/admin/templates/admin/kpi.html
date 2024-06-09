@@ -1,0 +1,347 @@
+<!-- admin/kpi.html -->
+{% extends 'dashboard_base.html' %}
+{% block main_content %}
+<div class="dashboard-container">
+<div class="dashboard-flex">
+    <!-- KPI Cards -->
+    <div class="kpi-section">
+        <h2 class="section-title">Indicadores Clave de Rendimiento</h2>
+        <div class="kpi-cards">
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <h3 class="kpi-title">Informe de Ventas</h3>
+                    <div class="kpi-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="kpi-info">
+                    <p>Ingreso del Mes Actual</p>
+                    <h4 class="income">{{ monthly_income[current_month] }}</h4>
+                    <p>Tasa de Crecimiento de Ventas del Mes Anterior</p>
+                    <h4 class="growth-rate">{{ sales_growth_last_month }}%</h4>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <h3 class="kpi-title">Tasa de Ocupación</h3>
+                    <div class="kpi-icon">
+                        <i class="fas fa-bed"></i>
+                    </div>
+                </div>
+                <div class="kpi-info">
+                    <p>Tasa de Ocupación del Mes Actual</p>
+                    <h4 class="occupancy-rate">{{ occupancy_rate }}%</h4>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <h3 class="kpi-title">Cancelaciones de Reserva</h3>
+                    <div class="kpi-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                </div>
+                <div class="kpi-info">
+                    <p>Total de Cancelaciones en {{ current_year }}</p>
+                    <h4 class="cancellations-count">{{ cancellations_count }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Graphics -->
+    <div class="dashboard-graphics">
+    <h2 class="section-title">Análisis de Datos</h2>
+        <div class="graphics-content">
+        <div class="graphics-column">
+            <!-- <h3 class="widget-title">Informe de ventas por mes confirmadas</h3>-->
+            <div class="widget">
+
+                <canvas id="monthly-income-chart"></canvas>
+            </div>
+            <!-- Informe de Reservas por Tipo de Habitación-->
+            <div class="widget">
+
+                <canvas id="reservations-type-chart"></canvas>
+            </div>
+        </div>
+        <div class="graphics-column">
+            <!-- <h3 class="widget-title">Segmentación de Clientes</h3>-->
+            <div class="widget">
+
+                <canvas id="customerSegmentsChart"></canvas>
+            </div>
+            <!-- <h3 class="widget-title">Ingresos por Segmento de Cliente</h3>-->
+            <div class="widget">
+
+                <canvas id="income-by-segment-chart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+     </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gráfico de ingresos mensuales
+        const ctx = document.getElementById('monthly-income-chart').getContext('2d');
+        const labels = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+        const values = {{ monthly_income|tojson }};
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Ingresos Mensuales',
+                    data: Object.values(values),
+                    backgroundColor: 'white',
+                    borderColor: '#3DA06E',
+                    borderWidth: 2,
+                    cubicInterpolationMode: 'monotone',
+                    fill: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    title: {
+                        display: true,
+                        text: 'Ingresos Mensuales',
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return new Intl.NumberFormat('en-US', {
+                                    style: 'currency',
+                                    currency: 'USD'
+                                }).format(context.parsed.y);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '{{ current_year }}',
+                            padding: 20
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Ingresos [$]'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return new Intl.NumberFormat('en-US', {
+                                    style: 'currency',
+                                    currency: 'USD'
+                                }).format(value);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico de reservas por tipo de habitación
+        const ctxReservations = document.getElementById('reservations-type-chart').getContext('2d');
+        const labelsReservations = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+        const reservationsByType = {{ reservations_by_type|tojson }};
+
+        const singleData = labelsReservations.map((_, index) => reservationsByType[index + 1].Single);
+        const doubleData = labelsReservations.map((_, index) => reservationsByType[index + 1].Double);
+        const deluxeData = labelsReservations.map((_, index) => reservationsByType[index + 1].Deluxe);
+
+        new Chart(ctxReservations, {
+            type: 'bar',
+            data: {
+                labels: labelsReservations,
+                datasets: [
+                    {
+                        label: 'Single',
+                        data: singleData,
+                        backgroundColor: '#3DA06E',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Double',
+                        data: doubleData,
+                        backgroundColor: '#FFCE56',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Deluxe',
+                        data: deluxeData,
+                        backgroundColor: '#FF6384',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Reservas por Tipo de Habitación',
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Mes',
+                            padding: 20
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Número de Reservas'
+                        },
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            }
+        });
+                // Gráfico de Segmentación de Clientes
+        const ctxSegments = document.getElementById('customerSegmentsChart').getContext('2d');
+        const customerSegmentsChart = new Chart(ctxSegments, {
+            type: 'bar',
+            data: {
+                labels: ['Frecuentes', 'Ocasionales', 'Raros'],
+                datasets: [{
+                    label: 'Número de Clientes',
+                    data: [
+                        {{ customer_segments['Frecuentes'] }},
+                        {{ customer_segments['Ocasionales'] }},
+                        {{ customer_segments['Raros'] }}
+                    ],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    title: {
+                        display: true,
+                        text: 'Segmentación de Clientes',
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        // Gráfico de Ingresos por Segmento de Cliente
+        const ctxIncomeBySegment = document.getElementById('income-by-segment-chart').getContext('2d');
+        const incomeBySegmentData = {{ income_by_customer_segment|tojson }};
+
+        new Chart(ctxIncomeBySegment, {
+            type: 'bar',
+            data: {
+                labels: ['Frecuentes', 'Ocasionales', 'Raros'],
+                datasets: [{
+                    label: 'Ingresos',
+                    data: [
+                        incomeBySegmentData['Frecuentes'],
+                        incomeBySegmentData['Ocasionales'],
+                        incomeBySegmentData['Raros']
+                    ],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    title: {
+                        display: true,
+                        text: 'Ingresos por Segmento de Cliente',
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Ingresos [$]'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return new Intl.NumberFormat('en-US', {
+                                    style: 'currency',
+                                    currency: 'USD'
+                                }).format(value);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

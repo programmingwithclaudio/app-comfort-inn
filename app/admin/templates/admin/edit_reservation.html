@@ -1,9 +1,22 @@
-<!-- edit_reservation.html -->
+<!-- templates/admin/edit_reservation.html -->
 {% extends 'dashboard_base.html' %}
+
 {% block main_content %}
 <h2 class="section-header">Editar Reserva</h2>
+
+<!-- Mostrar mensajes de flash -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
 <div class="form-model">
-    <form method="POST" action="{{ url_for('admin.edit_reservation', reservation_id=reservation.id) }}">
+    <form method="POST" action="{{ url_for('admin.edit_reservation', reservation_id=reservation.id) }}" id="reservation-form">
         {{ form.csrf_token }}
         <div class="form-group">
             <label for="booking_id">{{ form.booking_id.label }}</label>
@@ -45,23 +58,23 @@
             <label for="requests">{{ form.requests.label }}</label>
             {{ form.requests }}
         </div>
-        <button class="button edit" type="submit">Actualizar Reserva</button>
+        <button class="button add" type="submit">Guardar Cambios</button>
         <a href="{{ url_for('admin.reservations') }}" class="custom-link">Volver</a>
     </form>
 </div>
-    <!-- Incluir bibliotecas de JavaScript -->
+
+<!-- Incluir bibliotecas de JavaScript -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 
-    <!-- Inicializar el selector de fecha -->
-    <script>
-    $(document).ready(function() {
-        // Inicializar los selectores de fecha
-        $('.datepicker').datepicker({
-            format: 'yyyy-mm-dd',
-            autoclose: true,
-            startDate: new Date()
-        });
+<!-- Inicializar el selector de fecha -->
+<script>
+$(document).ready(function() {
+    $('.datepicker').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        startDate: new Date()
     });
-    </script>
+});
+</script>
 {% endblock %}

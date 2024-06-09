@@ -8,9 +8,10 @@ from sqlalchemy.exc import IntegrityError
 from .models import Customer, Booking, Pricing, Reservation, Account, CashFlow, Invoice, Supplier, Supply, Bank
 from . import admin_bp
 from ..models import User
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import or_, and_, cast, VARCHAR
 from app import db
+from sqlalchemy import func
 
 
 @admin_bp.route("/dashboard")
@@ -118,7 +119,7 @@ def delete_booking(booking_id):
 def reservations():
     search_term = request.args.get('search', '')
     page = request.args.get('page', 1, type=int)
-    per_page = 6
+    per_page = 10
 
     if search_term:
         # Utiliza join para obtener la información del cliente asociado a cada reserva
@@ -142,21 +143,24 @@ def reservations():
 @login_required
 def add_reservation():
     form = ReservationForm()
+    bookings = Booking.query.all()
+
+    if not bookings:
+        flash('No hay reservas disponibles para crear una nueva reserva.', 'danger')
+        return redirect(url_for('admin.reservations'))
+
     form.booking_id.choices = [
-        (booking.id, f"Booking ID: {booking.id} - Customer: {booking.customer.fullname} - Status: {booking.status}") for booking in Booking.query.all()
+        (booking.id, f"Booking ID: {booking.id} - Customer: {booking.customer.fullname} - Status: {booking.status}") for
+        booking in bookings
     ]
 
     if form.validate_on_submit():
         booking_id = form.booking_id.data
-        # Verifica si el estado de la reserva asociada está confirmado
         booking = Booking.query.get(booking_id)
         if booking and booking.status == 'CONFIRMED':
             try:
-                # Concatenar la fecha y la hora de las entradas del formulario
                 start_datetime_str = f"{form.start_date.data} {form.start_time.data}"
                 end_datetime_str = f"{form.end_date.data} {form.end_time.data}"
-
-                # Convertir a objetos datetime
                 start_date = datetime.strptime(start_datetime_str, '%Y-%m-%d %H:%M')
                 end_date = datetime.strptime(end_datetime_str, '%Y-%m-%d %H:%M')
 
@@ -170,14 +174,14 @@ def add_reservation():
                     children=form.children.data,
                     requests=form.requests.data
                 )
-                reservation.save()
+                db.session.add(reservation)
+                db.session.commit( )
                 flash('Nueva reserva creada con éxito', 'success')
                 return redirect(url_for("admin.reservations"))
             except ValueError:
                 flash('Por favor, ingresa las fechas y horas en el formato correcto.', 'danger')
         else:
-            # Si la reserva asociada no está confirmada, devolver un mensaje de error JSON
-            return jsonify({'error': 'La reserva asociada no está confirmada. No se puede crear una reserva.'}), 400
+            flash('La reserva asociada no está confirmada. No se puede crear una reserva.', 'danger')
 
     return render_template('admin/new_reservation.html', form=form)
 
@@ -187,19 +191,22 @@ def add_reservation():
 def edit_reservation(reservation_id):
     reservation = Reservation.query.get_or_404(reservation_id)
     form = ReservationForm(obj=reservation)
+    bookings = Booking.query.all()
+
+    if not bookings:
+        flash('No hay reservas disponibles para editar.', 'danger')
+        return redirect(url_for('admin.reservations'))
+
     form.booking_id.choices = [
-        (booking.id, f"Booking ID: {booking.id} - Customer: {booking.customer.fullname} - Status: {booking.status}")
-        for booking in Booking.query.all()
+        (booking.id, f"Booking ID: {booking.id} - Customer: {booking.customer.fullname} - Status: {booking.status}") for
+        booking in bookings
     ]
 
     if form.validate_on_submit():
         try:
             if form.start_date.data and form.start_time.data and form.end_date.data and form.end_time.data:
-                # Concatenar la fecha y la hora de las entradas del formulario
                 start_datetime_str = f"{form.start_date.data} {form.start_time.data}"
                 end_datetime_str = f"{form.end_date.data} {form.end_time.data}"
-
-                # Convertir a objetos datetime
                 start_date = datetime.strptime(start_datetime_str, '%Y-%m-%d %H:%M')
                 end_date = datetime.strptime(end_datetime_str, '%Y-%m-%d %H:%M')
 
@@ -211,7 +218,7 @@ def edit_reservation(reservation_id):
                 reservation.adults = form.adults.data
                 reservation.children = form.children.data
                 reservation.requests = form.requests.data
-                reservation.save()
+                db.session.commit()
 
                 flash('Reserva actualizada con éxito', 'success')
                 return redirect(url_for('admin.reservations'))
@@ -401,20 +408,30 @@ def pricing():
 @login_required
 def add_pricing():
     form = PricingForm()
+    # Filtrar bookings que no tienen un precio asignado
     form.booking_id.choices = [
-        (booking.id, f"ID: {booking.id} - Cliente: {booking.customer.fullname} - Estado: {booking.status}") for booking in Booking.query.all()
+        (booking.id, f"ID: {booking.id} - Cliente: {booking.customer.fullname} - Estado: {booking.status}")
+        for booking in Booking.query.outerjoin(Pricing, Booking.id == Pricing.booking_id).filter(Pricing.booking_id == None).all()
     ]
 
     if form.validate_on_submit():
+        # Verificar si el booking_id ya tiene un precio asignado
+        existing_pricing = Pricing.query.filter_by(booking_id=form.booking_id.data).first()
+        if existing_pricing:
+            flash('El booking_id ya tiene un precio asignado.', 'danger')
+            return redirect(url_for('admin.add_pricing'))
+
         new_pricing = Pricing(
             booking_id=form.booking_id.data,
             nights=form.nights.data,
             total_price=form.total_price.data,
             booked_date=form.booked_date.data
         )
-        new_pricing.save()
+        db.session.add(new_pricing)
+        db.session.commit()
         flash('Nuevo precio agregado con éxito', 'success')
         return redirect(url_for('admin.pricing'))
+
     return render_template('admin/new_pricing.html', form=form)
 
 
@@ -423,13 +440,28 @@ def add_pricing():
 def pricing_edit(pricing_id):
     pricing = Pricing.query.get_or_404(pricing_id)
     form = PricingForm(obj=pricing)
-    if form.validate_on_submit():
+
+    # Obtener todas las reservas disponibles
+    bookings = Booking.query.all( )
+
+    if not bookings:
+        flash('No hay reservas disponibles para asignar precios.', 'danger')
+        return redirect(url_for('admin.pricing'))
+
+    # Crear las opciones para el campo de selección
+    form.booking_id.choices = [
+        (booking.id, f"ID: {booking.id} - Cliente: {booking.customer.fullname} - Estado: {booking.status}")
+        for booking in bookings
+    ]
+
+    if form.validate_on_submit( ):
         pricing.nights = form.nights.data
         pricing.total_price = form.total_price.data
         pricing.booked_date = form.booked_date.data
-        pricing.save()
+        pricing.save( )
         flash('Precio actualizado con éxito', 'success')
         return redirect(url_for('admin.pricing'))
+
     return render_template('admin/edit_pricing.html', form=form, pricing=pricing)
 
 
@@ -446,42 +478,252 @@ def pricing_delete(pricing_id):
 @admin_bp.route('/dashboard/reports', methods=['GET'])
 def reservations_report():
     search_term = request.args.get('search', '')
+    status_filter = request.args.get('status', 'all')
+    date_filter = request.args.get('date', 'all')
     page = request.args.get('page', 1, type=int)
     per_page = 15
 
+    query = db.session.query(
+        Booking,
+        Reservation,
+        Customer,
+        Pricing
+    ).outerjoin(
+        Reservation, Booking.id == Reservation.booking_id
+    ).outerjoin(
+        Customer, Booking.cid == Customer.cid
+    ).outerjoin(
+        Pricing, Booking.id == Pricing.booking_id
+    )
+
     if search_term:
-        # Filtrar las reservas según el término de búsqueda
-        reservations = db.session.query(
-            Booking,
-            Reservation,
-            Customer,
-            Pricing
-        ).outerjoin(
-            Reservation, Booking.id == Reservation.booking_id
-        ).outerjoin(
-            Customer, Booking.cid == Customer.cid
-        ).outerjoin(
-            Pricing, Booking.id == Pricing.booking_id
-        ).filter(or_(
+        query = query.filter(or_(
             cast(Reservation.id, VARCHAR).ilike(f'%{search_term}%'),
             Customer.fullname.ilike(f'%{search_term}%'),
             Customer.email.ilike(f'%{search_term}%'),
             cast(Booking.status, VARCHAR).ilike(f'%{search_term}%'),
             cast(Pricing.total_price, VARCHAR).ilike(f'%{search_term}%')
-        )).paginate(page=page, per_page=per_page)
-    else:
-        # Obtener todas las reservas
-        reservations = db.session.query(
-            Booking,
-            Reservation,
-            Customer,
-            Pricing
-        ).outerjoin(
-            Reservation, Booking.id == Reservation.booking_id
-        ).outerjoin(
-            Customer, Booking.cid == Customer.cid
-        ).outerjoin(
-            Pricing, Booking.id == Pricing.booking_id
-        ).paginate(page=page, per_page=per_page)
+        ))
 
-    return render_template('admin/report.html', reservations=reservations)
+    if status_filter != 'all':
+        query = query.filter(Booking.status == status_filter)
+
+    if date_filter != 'all':
+        today = datetime.today()
+        if date_filter == 'this-week':
+            start_of_week = today - timedelta(days=today.weekday())
+            query = query.filter(Reservation.start >= start_of_week)
+        elif date_filter == 'this-month':
+            start_of_month = today.replace(day=1)
+            query = query.filter(Reservation.start >= start_of_month)
+
+    reservations = query.paginate(page=page, per_page=per_page)
+
+    return render_template('admin/report.html', reservations=reservations, search_term=search_term, status_filter=status_filter, date_filter=date_filter)
+
+
+@admin_bp.route('/dashboard/kpis', methods=['GET'])
+def kpi_data():
+    # Obtener el año y mes actual
+    current_year = datetime.now().year
+    current_month = datetime.now().month
+
+    # Asumir un número fijo de habitaciones en el hotel (por ejemplo, 50)
+    total_rooms = 50
+
+    # Obtener datos para el primer gráfico (ingresos mensuales)
+    monthly_income = get_monthly_income(current_year)
+
+    # Obtener datos para la segunda tarjeta (tasa de crecimiento de ventas del mes anterior)
+    sales_growth_last_month = get_sales_growth_last_month(current_year, current_month)
+
+    # Obtener datos para el gráfico de reservas por tipo de habitación
+    reservations_by_type = get_reservations_by_type(current_year)
+
+    # Obtener la tasa de ocupación para el mes actual
+    occupancy_rate = get_occupancy_rate(current_year, current_month, total_rooms)
+
+    # Obtener la segmentación de clientes por frecuencia de reserva
+    customer_segments = get_customer_segments()
+
+    # Obtener ingresos por segmento de cliente
+    income_by_customer_segment = get_income_by_customer_segment()
+
+    # Obtener el número de cancelaciones de reserva
+    cancellations_count = get_cancellations_count(current_year)
+
+    return render_template('admin/kpi.html',
+                           monthly_income=monthly_income,
+                           sales_growth_last_month=sales_growth_last_month,
+                           reservations_by_type=reservations_by_type,
+                           occupancy_rate=occupancy_rate,
+                           customer_segments=customer_segments,
+                           income_by_customer_segment=income_by_customer_segment,
+                           current_year=current_year,
+                           current_month=current_month,
+                           cancellations_count=cancellations_count
+                           )
+
+
+def get_monthly_income(year):
+    # Consulta para obtener el total de ingresos mensuales
+    results = db.session.query(
+        func.extract('month', Reservation.start).label('month'),
+        func.sum(Pricing.total_price).label('total_price')
+    ).join(
+        Booking, Booking.id == Reservation.booking_id
+    ).join(
+        Pricing, Booking.id == Pricing.booking_id
+    ).filter(
+        func.extract('year', Reservation.start) == year
+    ).group_by(
+        func.extract('month', Reservation.start)
+    ).order_by(
+        'month'
+    ).all()
+
+    # Formatear los resultados en un diccionario
+    monthly_income = dict(zip(range(1, 13), [0] * 12))
+    for result in results:
+        monthly_income[int(result.month)] = float(result.total_price)
+
+    return monthly_income
+
+def get_sales_growth_last_month(year, month):
+    # Obtener el último mes del año anterior
+    last_month = month - 1 if month > 1 else 12
+    last_year = year if month > 1 else year - 1
+
+    # Obtener los ingresos del último mes del año anterior
+    last_month_income = get_monthly_income(last_year)[last_month]
+
+    # Obtener los ingresos del mes actual
+    current_month_income = get_monthly_income(year)[month]
+
+    # Calcular la tasa de crecimiento de ventas del mes anterior
+    growth_rate = ((current_month_income - last_month_income) / last_month_income) * 100 if last_month_income != 0 else 0
+
+    return round(growth_rate, 2)
+
+
+def get_reservations_by_type(year):
+    results = db.session.query(
+        func.extract('month', Reservation.start).label('month'),
+        Reservation.type.label('type'),
+        func.count(Reservation.id).label('count')
+    ).filter(
+        func.extract('year', Reservation.start) == year
+    ).group_by(
+        func.extract('month', Reservation.start),
+        Reservation.type
+    ).order_by(
+        'month'
+    ).all()
+
+    # Formatear los resultados en un diccionario
+    reservations_by_type = {month: {'Single': 0, 'Double': 0, 'Deluxe': 0} for month in range(1, 13)}
+    for result in results:
+        reservations_by_type[int(result.month)][result.type] = result.count
+
+    return reservations_by_type
+
+
+def get_occupancy_rate(year, month, total_rooms):
+    # Obtener el primer y último día del mes
+    first_day = datetime(year, month, 1)
+    last_day = datetime(year, month + 1, 1) - timedelta(days=1) if month < 12 else datetime(year, 12, 31)
+
+    # Calcular el número total de noches en el mes
+    total_nights_in_month = (last_day - first_day).days + 1
+    total_available_nights = total_nights_in_month * total_rooms
+
+    # Consulta para obtener el número total de noches reservadas en el mes
+    results = db.session.query(
+        Reservation.start,
+        Reservation.end
+    ).filter(
+        Reservation.start <= last_day,
+        Reservation.end >= first_day
+    ).all()
+
+    total_reserved_nights = 0
+    for reservation in results:
+        start_date = max(reservation.start, first_day)
+        end_date = min(reservation.end, last_day)
+        total_reserved_nights += (end_date - start_date).days + 1
+
+    occupancy_rate = (total_reserved_nights / total_available_nights) * 100 if total_available_nights > 0 else 0
+
+    return round(occupancy_rate, 2)
+
+def get_customer_segments():
+    # Consulta para obtener el conteo de reservas por cliente
+    results = db.session.query(
+        Booking.cid,
+        func.count(Booking.id).label('total_reservations')
+    ).group_by(
+        Booking.cid
+    ).all()
+
+    # Categorizar clientes
+    segments = {'Frecuentes': 0, 'Ocasionales': 0, 'Raros': 0}
+    for result in results:
+        if result.total_reservations >= 10:
+            segments['Frecuentes'] += 1
+        elif result.total_reservations >= 3:
+            segments['Ocasionales'] += 1
+        else:
+            segments['Raros'] += 1
+
+    return segments
+
+def get_income_by_customer_segment():
+    # Calcular el ingreso total por cliente
+    customer_incomes = db.session.query(
+        Booking.cid,
+        func.sum(Pricing.total_price).label('total_income')
+    ).join(
+        Reservation, Booking.id == Reservation.booking_id
+    ).join(
+        Pricing, Booking.id == Pricing.booking_id
+    ).group_by(
+        Booking.cid
+    ).all()
+
+    # Contar el número de reservas por cliente para segmentarlos
+    customer_reservations = db.session.query(
+        Booking.cid,
+        func.count(Booking.id).label('reservation_count')
+    ).group_by(
+        Booking.cid
+    ).all()
+
+    # Crear diccionarios para almacenar los ingresos y la segmentación
+    income_by_segment = {
+        'Frecuentes': 0,
+        'Ocasionales': 0,
+        'Raros': 0
+    }
+
+    # Definir los umbrales para la segmentación
+    frequent_threshold = 10  # Ejemplo: clientes con más de 10 reservas son frecuentes
+    occasional_threshold = 3  # Ejemplo: clientes con entre 4 y 10 reservas son ocasionales
+
+    # Crear un diccionario para mapear los ingresos a cada segmento de clientes
+    reservation_counts = {cid: count for cid, count in customer_reservations}
+    for cid, total_income in customer_incomes:
+        count = reservation_counts.get(cid, 0)
+        if count > frequent_threshold:
+            income_by_segment['Frecuentes'] += total_income
+        elif count > occasional_threshold:
+            income_by_segment['Ocasionales'] += total_income
+        else:
+            income_by_segment['Raros'] += total_income
+
+    return income_by_segment
+
+
+def get_cancellations_count(year):
+    # Consulta para contar el número de reservas canceladas en el año actual
+    cancellations_count = Booking.query.filter_by(status='CANCELLED').count()
+    return cancellations_count
