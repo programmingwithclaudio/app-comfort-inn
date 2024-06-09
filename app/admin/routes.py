@@ -10,14 +10,59 @@ from . import admin_bp
 from ..models import User
 from datetime import datetime, timedelta
 from sqlalchemy import or_, and_, cast, VARCHAR
-from app import db
+from app import db, mail
 from sqlalchemy import func
+from flask_mail import Message
+import jsonpickle
 
 
 @admin_bp.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("admin/home.html")
+    current_year = datetime.now().year
+    current_month = datetime.now().month
+    total_rooms = 50
+
+    monthly_income = get_monthly_income(current_year)
+    sales_growth_last_month = get_sales_growth_last_month(current_year, current_month)
+    reservations_by_type = get_reservations_by_type(current_year)
+    occupancy_rate = get_occupancy_rate(current_year, current_month, total_rooms)
+    customer_segments = get_customer_segments()
+    income_by_customer_segment = get_income_by_customer_segment()
+    cancellations_count = get_cancellations_count(current_year)
+
+
+    return render_template('admin/home.html',
+                           monthly_income=monthly_income,
+                           sales_growth_last_month=sales_growth_last_month,
+                           reservations_by_type=reservations_by_type,
+                           occupancy_rate=occupancy_rate,
+                           customer_segments=customer_segments,
+                           income_by_customer_segment=income_by_customer_segment,
+                           current_year=current_year,
+                           current_month=current_month,
+                           cancellations_count=cancellations_count,
+                           get_month_name=get_month_name,
+                           )
+
+
+def get_month_name(month):
+    month_names = {
+        1: "Enero",
+        2: "Febrero",
+        3: "Marzo",
+        4: "Abril",
+        5: "Mayo",
+        6: "Junio",
+        7: "Julio",
+        8: "Agosto",
+        9: "Septiembre",
+        10: "Octubre",
+        11: "Noviembre",
+        12: "Diciembre"
+    }
+    return month_names.get(month, "Mes Inválido")
+
 
 
 @admin_bp.route("/dashboard/settings")
@@ -458,7 +503,7 @@ def pricing_edit(pricing_id):
         pricing.nights = form.nights.data
         pricing.total_price = form.total_price.data
         pricing.booked_date = form.booked_date.data
-        pricing.save( )
+        pricing.save()
         flash('Precio actualizado con éxito', 'success')
         return redirect(url_for('admin.pricing'))
 
@@ -520,7 +565,6 @@ def reservations_report():
     reservations = query.paginate(page=page, per_page=per_page)
 
     return render_template('admin/report.html', reservations=reservations, search_term=search_term, status_filter=status_filter, date_filter=date_filter)
-
 
 @admin_bp.route('/dashboard/kpis', methods=['GET'])
 def kpi_data():
@@ -727,3 +771,22 @@ def get_cancellations_count(year):
     # Consulta para contar el número de reservas canceladas en el año actual
     cancellations_count = Booking.query.filter_by(status='CANCELLED').count()
     return cancellations_count
+
+
+
+def send_report_email(to_email, search_term, status_filter, date_filter, reservations):
+    msg = Message("Informe de Reservas", recipients=[to_email])
+    msg.html = render_template('admin/report.html', reservations=reservations, search_term=search_term, status_filter=status_filter, date_filter=date_filter)
+    mail.send(msg)
+
+@admin_bp.route('/send_report_email', methods=['POST'])
+def send_report_email_route():
+    data = request.get_json()
+    to_email = data['to_email']  # Obtener la dirección de correo electrónico del usuario de alguna manera
+    search_term = data['search_term']
+    status_filter = data['status_filter']
+    date_filter = data['date_filter']
+    # Serializar los datos de las reservas de manera adecuada
+    reservations = data['reservations']  # Ajusta esto según cómo estén estructurados los datos en el lado del cliente
+    send_report_email(to_email, search_term, status_filter, date_filter, reservations)
+    return jsonify({'success': True})

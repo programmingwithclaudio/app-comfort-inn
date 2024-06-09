@@ -4,60 +4,241 @@
 <div class="container">
   <div class="row">
     <div class="col-md-12">
-      <h1 class="text-center mb-4">Welcome to HotelApp</h1>
-      <p class="lead text-center mb-5">Your ultimate solution for seamless hotel management and booking.</p>
+      <h1 class="text-center mb-4">Bienvenido a HotelApp</h1>
+      <p class="lead text-center mb-5">Tu solución definitiva para la gestión y reserva de hoteles sin complicaciones.</p>
     </div>
   </div>
+
   <div class="row">
-    <div class="col-md-6 mb-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">Effortless Hotel Management</h5>
-          <p class="card-text">Streamline your hotel operations with our intuitive platform. Manage room availability, pricing, and guest reservations with ease.</p>
-          <a href="#" class="btn btn-primary">Learn More</a>
+    <div class="col-md-6">
+      <!-- Contenido de la columna izquierda -->
+          <!-- Crecimiento de Ventas y Tasa de Ocupación -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title"><i class="fas fa-chart-line"></i> Crecimiento de Ventas</h5>
+              <p class="card-text">{{ sales_growth_last_month }}%</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title"><i class="fas fa-bed"></i> Tasa de Ocupación</h5>
+              <p class="card-text">{{ occupancy_rate }}%</p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-6 mb-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">Seamless Guest Experience</h5>
-          <p class="card-text">Provide your guests with a delightful booking experience. Our user-friendly interface ensures a smooth reservation process from start to finish.</p>
-          <a href="#" class="btn btn-primary">Book Now</a>
+
+      <!-- Ingresos Mensuales -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title"><i class="fas fa-dollar-sign"></i> Ingresos Mensuales</h5>
+              <div class="table-responsive">
+                <table id="monthly-income-table" class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Mes</th>
+                      <th>Ingreso</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for month, income in monthly_income.items() %}
+                    <tr>
+                      <td>{{ get_month_name(month) }}</td>
+                      <td>{{ income | currency }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-4 mb-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title"><i class="fas fa-calendar-alt"></i> Room Availability</h5>
-          <p class="card-text">Keep track of your room inventory and availability with our real-time calendar.</p>
-          <a href="#" class="btn btn-primary">View Availability</a>
+
+
+
+      <!-- Reservas por Tipo -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title"><i class="fas fa-tags"></i> Reservas por Tipo</h5>
+              <div class="table-responsive">
+                <table id="reservations-by-type-table" class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Mes</th>
+                      <th>Single</th>
+                      <th>Double</th>
+                      <th>Deluxe</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for month, reservation_counts in reservations_by_type.items() %}
+                    <tr>
+                      <td>{{ get_month_name(month) }}</td>
+                      <td>{{ reservation_counts.Single }}</td>
+                      <td>{{ reservation_counts.Double }}</td>
+                      <td>{{ reservation_counts.Deluxe }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4 mb-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title"><i class="fas fa-chart-line"></i> Insightful Analytics</h5>
-          <p class="card-text">Gain valuable insights into your hotel's performance with detailed analytics and reports.</p>
-          <a href="#" class="btn btn-primary">View Analytics</a>
+      <!-- Ingresos por Segmento -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title"><i class="fas fa-money-bill-wave"></i> Ingresos por Segmento</h5>
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Segmento</th>
+                      <th>Ingreso</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for segment, income in income_by_customer_segment.items() %}
+                    <tr>
+                      <td>{{ segment }}</td>
+                      <td>{{ income | currency }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+
     </div>
-    <div class="col-md-4 mb-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title"><i class="fas fa-users"></i> Guest Management</h5>
-          <p class="card-text">Efficiently manage guest information, reservations, and communication.</p>
-          <a href="#" class="btn btn-primary">Manage Guests</a>
+
+    <div class="col-md-6">
+      <!-- Contenido de la columna derecha -->
+
+          <!-- Segmentación de Clientes -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title"><i class="fas fa-users"></i> Segmentación de Clientes</h5>
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Segmento</th>
+                      <th>Frecuencia de Reserva</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for segment, frequency in customer_segments.items() %}
+                    <tr>
+                      <td>{{ segment }}</td>
+                      <td>{{ frequency }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+          <!-- Información Adicional -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">Gestión de Hoteles Eficiente</h5>
+              <p class="card-text">Optimiza las operaciones de tu hotel con nuestra plataforma intuitiva. Gestiona la disponibilidad de habitaciones, precios y reservas de huéspedes con facilidad.</p>
+              <a href="/dashboard/customers" class="btn btn-primary">Conocer más</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--- Experiencia del Huésped Sin Problemas -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">Experiencia del Huésped Sin Problemas</h5>
+              <p class="card-text">Proporciona a tus huéspedes una experiencia de reserva agradable. Nuestra interfaz fácil de usar garantiza un proceso de reserva fluido de principio a fin.</p>
+              <a href="/dashboard/bookings" class="btn btn-primary">Reservar Ahora</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disponibilidad de Habitaciones -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title"><i class="fas fa-calendar-alt"></i> Disponibilidad de Habitaciones</h5>
+              <p class="card-text">Mantén un control de tu inventario de habitaciones y disponibilidad con nuestro calendario en tiempo real.</p>
+              <a href="/dashboard/reservations" class="btn btn-primary">Ver Disponibilidad</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+    <script>
+  // JavaScript para ocultar las filas con ingresos de $0
+  document.addEventListener("DOMContentLoaded", function() {
+    var incomeTable = document.getElementById("monthly-income-table");
+    if (incomeTable) {
+      var incomeRows = incomeTable.getElementsByTagName("tr");
 
+      for (var i = 1; i < incomeRows.length; i++) {
+        var incomeCell = incomeRows[i].getElementsByTagName("td")[1];
+        var incomeValue = incomeCell.textContent.replace(/[^0-9.]/g, '');
+        if (parseFloat(incomeValue) === 0) {
+          incomeRows[i].style.display = "none";
+        }
+      }
+    }
+  });
+
+  // JavaScript para ocultar las filas en la tabla de reservas por tipo
+  document.addEventListener("DOMContentLoaded", function() {
+    var reservationsTable = document.getElementById("reservations-by-type-table");
+    if (reservationsTable) {
+      var reservationsRows = reservationsTable.getElementsByTagName("tr");
+
+      for (var i = 1; i < reservationsRows.length; i++) {
+        var cells = reservationsRows[i].getElementsByTagName("td");
+        var allZeros = true;
+
+        for (var j = 1; j < cells.length; j++) {
+          var cellValue = parseFloat(cells[j].textContent);
+          if (cellValue !== 0) {
+            allZeros = false;
+            break;
+          }
+        }
+
+        if (allZeros) {
+          reservationsRows[i].style.display = "none";
+        }
+      }
+    }
+  });
+</script>
 
 {% endblock %}
