@@ -1,117 +1,207 @@
 <!-- report.html -->
 {% extends 'dashboard_base.html' %}
 {% block main_content %}
-    <h2 class="section-header">Informe de Reservas</h2>
+<h2 class="section-header">Informe de Reservas</h2>
 
-    <div class="panel">
-        <div class="panel__header">
-            <div class="input__wrapper">
-                <form action="{{ url_for('admin.reservations_report') }}" method="GET" class="input__wrapper">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="search" name="search" placeholder="Buscar por nombre..." value="{{ request.args.get('search', '') }}">
-                    <input type="hidden" name="status" value="{{ status_filter }}">
-                    <input type="hidden" name="date" value="{{ date_filter }}">
-                    <button type="submit" class="button search">Buscar</button>
-                </form>
-            </div>
-        </div>
-        <div class="panel__body">
-
-            <div class="filter__wrapper">
-                <div class="filter__controls">
-                    <span class="filter__label">Estado:</span>
-                    <select id="statusFilter" class="filter__select">
-                        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Todos</option>
-                        <option value="PENDING" {% if status_filter == 'PENDING' %}selected{% endif %}>En progreso</option>
-                        <option value="CONFIRMED" {% if status_filter == 'CONFIRMED' %}selected{% endif %}>Completado</option>
-                    </select>
-                    <span class="filter__label">Fecha:</span>
-                    <select id="dateFilter" class="filter__select">
-                        <option value="all" {% if date_filter == 'all' %}selected{% endif %}>Todos</option>
-                        <option value="this-week" {% if date_filter == 'this-week' %}selected{% endif %}>Esta semana</option>
-                        <option value="this-month" {% if date_filter == 'this-month' %}selected{% endif %}>Este mes</option>
-                    </select>
-                </div>
-            </div>
-            <div class="panel__table">
-                <table id="reportTable">
-                    <thead>
-                        <tr>
-                            <th>ID Reserva</th>
-                            <th>Nombre del Cliente</th>
-                            <th>Estado de la Reserva</th>
-                            <th>Inicio de la Reserva</th>
-                            <th>Fin de la Reserva</th>
-                            <th>Tipo de Reserva</th>
-                            <th>Adultos</th>
-                            <th>Niños</th>
-                            <th>Noches</th>
-                            <th>Precio Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for booking, reservation, customer, pricing in reservations.items %}
-                            <tr>
-                                <td>{{ booking.id }}</td>
-                                <td>{{ customer.fullname }}</td>
-                                <td>{{ booking.status }}</td>
-                                <td>{{ reservation.start }}</td>
-                                <td>{{ reservation.end }}</td>
-                                <td>{{ reservation.type }}</td>
-                                <td>{{ reservation.adults }}</td>
-                                <td>{{ reservation.children }}</td>
-                                <td>{{ pricing.nights }}</td>
-                                <td>{{ pricing.total_price }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <!-- Agrega la paginación -->
-            <div class="pagination">
-                {% if reservations.has_prev %}
-                    <a href="{{ url_for('admin.reservations_report', page=reservations.prev_num, search=search_term, status=status_filter, date=date_filter) }}">Previous</a>
-                {% endif %}
-
-                {% for page_num in reservations.iter_pages() %}
-                    {% if page_num %}
-                        {% if page_num == reservations.page %}
-                            <strong>{{ page_num }}</strong>
-                        {% else %}
-                            <a href="{{ url_for('admin.reservations_report', page=page_num, search=search_term, status=status_filter, date=date_filter) }}">{{ page_num }}</a>
-                        {% endif %}
-                    {% else %}
-                        ...
-                    {% endif %}
-                {% endfor %}
-
-                {% if reservations.has_next %}
-                    <a href="{{ url_for('admin.reservations_report', page=reservations.next_num, search=search_term, status=status_filter, date=date_filter) }}">Next</a>
-                {% endif %}
-            </div>
+<div class="panel">
+    <div class="panel__header">
+        <div class="input__wrapper">
+            <form action="{{ url_for('admin.reservations_report') }}" method="GET" class="input__wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" name="search" placeholder="Buscar por nombre..." value="{{ request.args.get('search', '') }}">
+                <input type="hidden" name="status" value="{{ status_filter }}">
+                <input type="hidden" name="date" value="{{ date_filter }}">
+                <button type="submit" class="button search">Buscar</button>
+            </form>
         </div>
     </div>
-    <!-- Inicializar el selector de fecha y manejar envío del formulario -->
-    <script>
+    <div class="panel__body">
 
-    // JavaScript para filtrar la tabla
-    document.addEventListener('DOMContentLoaded', function() {
-        const statusFilter = document.getElementById('statusFilter');
-        const dateFilter = document.getElementById('dateFilter');
+        <div class="filter__wrapper">
+            <div class="filter__controls">
+                <span class="filter__label">Estado:</span>
+                <select id="statusFilter" class="filter__select">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Todos</option>
+                    <option value="PENDING" {% if status_filter == 'PENDING' %}selected{% endif %}>En progreso</option>
+                    <option value="CONFIRMED" {% if status_filter == 'CONFIRMED' %}selected{% endif %}>Completado</option>
+                </select>
+                <span class="filter__label">Fecha:</span>
+                <select id="dateFilter" class="filter__select">
+                    <option value="all" {% if date_filter == 'all' %}selected{% endif %}>Todos</option>
+                    <option value="this-week" {% if date_filter == 'this-week' %}selected{% endif %}>Esta semana</option>
+                    <option value="this-month" {% if date_filter == 'this-month' %}selected{% endif %}>Este mes</option>
+                </select>
+            </div>
+        </div>
+        <button id="download_Btn">
+            Download Table Data
+        </button>
+        <div class="panel__table" id="content">
+            <table class="custom-table">
+                <thead class="table-header">
+                    <tr>
+                        <th>ID Reserva</th>
+                        <th>Nombre del Cliente</th>
+                        <th>Estado de la Reserva</th>
+                        <th>Inicio de la Reserva</th>
+                        <th>Fin de la Reserva</th>
+                        <th>Tipo de Reserva</th>
+                        <th>Adultos</th>
+                        <th>Niños</th>
+                        <th>Noches</th>
+                        <th>Precio Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking, reservation, customer, pricing in reservations.items %}
+                    <tr>
+                        <td>{{ booking.id }}</td>
+                        <td>{{ customer.fullname }}</td>
+                        <td>{{ booking.status }}</td>
+                        <td>{{ reservation.start }}</td>
+                        <td>{{ reservation.end }}</td>
+                        <td>{{ reservation.type }}</td>
+                        <td>{{ reservation.adults }}</td>
+                        <td>{{ reservation.children }}</td>
+                        <td>{{ pricing.nights }}</td>
+                        <td>{{ pricing.total_price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!-- Agrega la paginación -->
+        <div class="pagination">
+            {% if reservations.has_prev %}
+            <a href="{{ url_for('admin.reservations_report', page=reservations.prev_num, search=search_term, status=status_filter, date=date_filter) }}">Previous</a>
+            {% endif %}
 
-        statusFilter.addEventListener('change', function() {
-            const url = new URL(window.location.href);
-            url.searchParams.set('status', statusFilter.value);
-            window.location.href = url.toString();
-        });
+            {% for page_num in reservations.iter_pages() %}
+            {% if page_num %}
+            {% if page_num == reservations.page %}
+            <strong>{{ page_num }}</strong>
+            {% else %}
+            <a href="{{ url_for('admin.reservations_report', page=page_num, search=search_term, status=status_filter, date=date_filter) }}">{{ page_num }}</a>
+            {% endif %}
+            {% else %}
+            ...
+            {% endif %}
+            {% endfor %}
 
-        dateFilter.addEventListener('change', function() {
-            const url = new URL(window.location.href);
-            url.searchParams.set('date', dateFilter.value);
-            window.location.href = url.toString();
-        });
+            {% if reservations.has_next %}
+            <a href="{{ url_for('admin.reservations_report', page=reservations.next_num, search=search_term, status=status_filter, date=date_filter) }}">Next</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Include html2pdf library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+<!-- Custom CSS -->
+<style>
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* Fija el ancho de las columnas */
+}
+
+.custom-table th, .custom-table td {
+    padding: 4px 10px;
+    font-size: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+    overflow: hidden; /* Esconde el contenido desbordado */
+    white-space: nowrap; /* Evita que el contenido se desborde */
+    text-overflow: ellipsis; /* Añade elipsis para el contenido desbordado */
+}
+
+.custom-table th {
+    background-color: #f2f2f2;
+}
+
+.table-header {
+    display: table-header-group;
+}
+
+@media print {
+    .custom-table th, .custom-table td {
+        font-size: 7px;
+    }
+}
+</style>
+
+<!-- Inicializar el selector de fecha y manejar envío del formulario -->
+<script>
+// JavaScript para filtrar la tabla
+document.addEventListener('DOMContentLoaded', function() {
+    const statusFilter = document.getElementById('statusFilter');
+    const dateFilter = document.getElementById('dateFilter');
+
+    statusFilter.addEventListener('change', function() {
+        const url = new URL(window.location.href);
+        url.searchParams.set('status', statusFilter.value);
+        window.location.href = url.toString();
     });
-</script>
-    </script>
-{% endblock %}
 
+    dateFilter.addEventListener('change', function() {
+        const url = new URL(window.location.href);
+        url.searchParams.set('date', dateFilter.value);
+        window.location.href = url.toString();
+    });
+
+    async function loadAllPages() {
+        let currentPage = 1;
+        const totalPages = {{ reservations.pages }};
+        const allContent = document.createElement('div');
+
+        while (currentPage <= totalPages) {
+            const response = await fetch(`{{ url_for('admin.reservations_report') }}?page=${currentPage}&search={{ search_term }}&status={{ status_filter }}&date={{ date_filter }}`);
+            const text = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const pageContent = doc.querySelector('#content').innerHTML;
+            allContent.innerHTML += pageContent;
+            currentPage++;
+        }
+
+        // Remover encabezados adicionales
+        const headers = allContent.querySelectorAll('.table-header');
+        headers.forEach((header, index) => {
+            if (index > 0) {
+                header.remove();
+            }
+        });
+
+        return allContent;
+    }
+
+    const downloadButton = document.getElementById('download_Btn');
+
+    downloadButton.addEventListener('click', async function () {
+        const allContent = await loadAllPages();
+        const filename = 'table_data.pdf';
+
+        try {
+            const opt = {
+                margin: 0.5,
+                filename: filename,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }  // Set orientation to landscape
+            };
+            await html2pdf().set(opt).from(allContent).toPdf().get('pdf').then(function (pdf) {
+                const totalPages = pdf.internal.getNumberOfPages();
+                for (let i = 2; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    pdf.setFontSize(10);
+                    pdf.text(20, 10, '');
+                }
+            }).save(filename);
+        } catch (error) {
+            console.error('Error:', error.message);
+        }
+    });
+});
+</script>
+{% endblock %}

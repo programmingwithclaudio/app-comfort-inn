@@ -1,5 +1,5 @@
 # admin/routes.py
-from flask import render_template, request, redirect, url_for, flash, abort, jsonify
+from flask import render_template, request, redirect, url_for, flash, abort, jsonify, make_response
 from flask_login import login_required, logout_user, current_user
 from .forms import (AddCourseForm, ReservationForm, BookingForm, CustomerForm, PricingForm,
                     BookingForm, CustomerForm, PricingForm, AccountForm, CashFlowForm, InvoiceForm, SupplierForm,
@@ -10,10 +10,9 @@ from . import admin_bp
 from ..models import User
 from datetime import datetime, timedelta
 from sqlalchemy import or_, and_, cast, VARCHAR
-from app import db, mail
+from app import db
 from sqlalchemy import func
-from flask_mail import Message
-import jsonpickle
+
 
 
 @admin_bp.route("/dashboard")
@@ -499,7 +498,7 @@ def pricing_edit(pricing_id):
         for booking in bookings
     ]
 
-    if form.validate_on_submit( ):
+    if form.validate_on_submit():
         pricing.nights = form.nights.data
         pricing.total_price = form.total_price.data
         pricing.booked_date = form.booked_date.data
@@ -772,21 +771,3 @@ def get_cancellations_count(year):
     cancellations_count = Booking.query.filter_by(status='CANCELLED').count()
     return cancellations_count
 
-
-
-def send_report_email(to_email, search_term, status_filter, date_filter, reservations):
-    msg = Message("Informe de Reservas", recipients=[to_email])
-    msg.html = render_template('admin/report.html', reservations=reservations, search_term=search_term, status_filter=status_filter, date_filter=date_filter)
-    mail.send(msg)
-
-@admin_bp.route('/send_report_email', methods=['POST'])
-def send_report_email_route():
-    data = request.get_json()
-    to_email = data['to_email']  # Obtener la dirección de correo electrónico del usuario de alguna manera
-    search_term = data['search_term']
-    status_filter = data['status_filter']
-    date_filter = data['date_filter']
-    # Serializar los datos de las reservas de manera adecuada
-    reservations = data['reservations']  # Ajusta esto según cómo estén estructurados los datos en el lado del cliente
-    send_report_email(to_email, search_term, status_filter, date_filter, reservations)
-    return jsonify({'success': True})
