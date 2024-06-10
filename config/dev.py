@@ -1,3 +1,13 @@
 from .default import *
+from dotenv import load_dotenv
+import os
 
-SQLALCHEMY_DATABASE_URI= "postgresql://postgres:mailito@192.168.100.11:5432/dbservice"
+# Cargar las variables de entorno desde el archivo .env
+load_dotenv()
+
+class Config:
+    # Otras configuraciones por defecto
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+# Asignar la variable de entorno a la configuración
+SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')

@@ -25,6 +25,8 @@ flask db upgrade     # Aplica la migración a la base de datos
 flask db migrate -m "Aumentar la longitud del campo password a 256 caracteres"
 flask db upgrade
 pip freeze > requirements.txt
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\venv\Scripts\activate
 
 ```
 - docker
@@ -34,9 +36,14 @@ SELECT current_setting('data_directory') AS data_directory;
 docker cp /home/crow/Descargas/customers.csv b35d2fccae0e:/var/lib/postgresql/data/customers.csv
 docker exec -it b35d2fccae0e bash
 ls /var/lib/postgresql/data
+## backup de docker
 docker exec -it b35d2fccae0e bash
 pg_dump -U postgres -d dbservice -F c -b -v -f /var/lib/postgresql/data/dbservice_backup.sql
 docker cp b35d2fccae0e:/var/lib/postgresql/data/dbservice_backup.sql /home/crow/ti/basic-flask/dbservice_backup.sql
+## restaurar en windows
+cmd
+psql -U postgres -c "CREATE DATABASE dbservice;"
+pg_restore -U postgres -d dbservice -1 C:\Users\ozi\ti\app-flask-users\dbservice_backup.sql
 
 ```
 - docker modificate maal base de datos
@@ -495,4 +502,42 @@ Las relaciones entre las clases son las siguientes:
 3. **Patrón de Observador**: Si se requiere notificar a otros componentes del sistema cuando se realiza un movimiento de efectivo o se actualiza el saldo de una cuenta, se puede implementar el patrón de observador. Las clases `CashFlow` y `Account` podrían ser los sujetos observables, y otros componentes como el sistema de contabilidad o el sistema de reportes podrían suscribirse como observadores para recibir actualizaciones.
 
 - Esta implementación sigue los principios de diseño orientado a objetos y los patrones de diseño relevantes, lo que facilita la extensibilidad, mantenibilidad y flexibilidad del sistema de gestión de tesorería y flujo de caja financiero.
+---
+
+Por supuesto, aquí tienes un resumen de las reglas de negocio aplicadas en cada sección de la aplicación:
+
+1. **Dashboard (Panel de Control):**
+   - **Ingresos Mensuales:** Calcula los ingresos mensuales por reservas.
+   - **Tasa de Crecimiento de Ventas del Mes Anterior:** Calcula la tasa de crecimiento de las ventas respecto al mes anterior.
+   - **Reservas por Tipo de Habitación:** Proporciona estadísticas sobre el número de reservas por tipo de habitación.
+   - **Tasa de Ocupación:** Calcula la ocupación actual en base al número de habitaciones reservadas.
+   - **Segmentación de Clientes:** Categoriza a los clientes en frecuentes, ocasionales y raros en función del número de reservas realizadas.
+   - **Ingresos por Segmento de Cliente:** Calcula los ingresos totales generados por cada segmento de clientes.
+   - **Conteo de Cancelaciones:** Cuenta el número de reservas canceladas en el año actual.
+
+2. **Configuración del Usuario:**
+   - Permite a los usuarios administradores editar su información personal, como nombre, apellido, correo electrónico y número de teléfono.
+
+3. **Reservas y Reservas Nuevas:**
+   - **Nueva Reserva:** Solo se permite crear una nueva reserva si la reserva asociada está confirmada.
+   - **Edición de Reserva:** Permite editar la información de una reserva existente, como el cliente asociado, el estado y las notas.
+   - **Eliminación de Reserva:** Permite eliminar una reserva existente.
+
+4. **Clientes y Proveedores:**
+   - **Nuevo Cliente:** Verifica si el identificador o el correo electrónico del cliente ya existen antes de agregar un nuevo cliente.
+   - **Edición de Cliente:** Permite editar la información de un cliente existente, como el identificador, el nombre, el correo electrónico y el número de teléfono.
+   - **Eliminación de Cliente:** Permite eliminar un cliente existente.
+   - **Nuevo Proveedor:** Permite agregar un nuevo proveedor.
+   - **Edición de Proveedor:** Permite editar la información de un proveedor existente.
+   - **Eliminación de Proveedor:** Permite eliminar un proveedor existente.
+
+5. **Precios y Otros:**
+   - **Nuevo Precio:** Verifica si ya existe un precio asignado para una reserva antes de agregar un nuevo precio.
+   - **Edición de Precio:** Permite editar la información de un precio existente.
+   - **Eliminación de Precio:** Permite eliminar un precio existente.
+
+6. **Informes:**
+   - **Generación de Informes:** Permite generar informes de reservas con opciones de filtrado por términos de búsqueda, estado de reserva y fecha de reserva.
+
+Estas reglas de negocio garantizan la integridad de los datos y la coherencia de la aplicación en todas las áreas funcionales.
 ---
