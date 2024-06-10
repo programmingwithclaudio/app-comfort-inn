@@ -5,8 +5,11 @@
 <div class="panel">
     <div class="panel__header">
         <div class="input__wrapper">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="search" placeholder="Search for anything...">
+            <form action="{{ url_for('admin.reservations') }}" method="GET" class="input__wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" name="search" placeholder="Buscar..." value="{{ request.args.get('search', '') }}">
+                <button type="submit" class="button search">Buscar</button>
+            </form>
         </div>
     </div>
     <div class="panel__body">

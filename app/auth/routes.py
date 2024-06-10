@@ -23,8 +23,8 @@ def signup():
         lastname = request.form["lastname"]
         email = request.form["email"]
         password = request.form["password"]
-        phone= request.form["phone"]
-        role=request.form["role"]
+        phone = request.form["phone"]
+        role = request.form["role"]
         user = User( firstname=firstname, lastname=lastname, email=email, phone=phone, role=role)
         user.set_password(password)
         user.save()

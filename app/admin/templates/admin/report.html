@@ -37,7 +37,10 @@
             Download Table Data
         </button>
         <div class="panel__table" id="content">
+
             <table class="custom-table">
+            <h3 class="first-page-only">Reporte de Gestión de Reservas por detalle y precios</h3>
+
                 <thead class="table-header">
                     <tr>
                         <th>ID Reserva</th>
@@ -108,12 +111,14 @@
 
 .custom-table th, .custom-table td {
     padding: 4px 10px;
-    font-size: 10px;
+    font-size: 8px;
     border: 1px solid #ddd;
     text-align: left;
     overflow: hidden; /* Esconde el contenido desbordado */
-    white-space: nowrap; /* Evita que el contenido se desborde */
-    text-overflow: ellipsis; /* Añade elipsis para el contenido desbordado */
+    /* white-space: nowrap; /* Elimina esta línea */
+    /* text-overflow: ellipsis; /* Elimina esta línea */
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .custom-table th {
@@ -124,9 +129,14 @@
     display: table-header-group;
 }
 
+
 @media print {
     .custom-table th, .custom-table td {
-        font-size: 7px;
+        font-size: 8px;
+        word-break: break-all; /* Agrega esta línea */
+    }
+    .first-page-only {
+        display: block;
     }
 }
 </style>
@@ -154,6 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let currentPage = 1;
         const totalPages = {{ reservations.pages }};
         const allContent = document.createElement('div');
+        let firstPageTitle = null;
 
         while (currentPage <= totalPages) {
             const response = await fetch(`{{ url_for('admin.reservations_report') }}?page=${currentPage}&search={{ search_term }}&status={{ status_filter }}&date={{ date_filter }}`);
@@ -172,7 +183,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 header.remove();
             }
         });
-
+        // Remover títulos adicionales
+        const titles = allContent.querySelectorAll('.first-page-only');
+        titles.forEach((title, index) => {
+            if (index > 0) {
+                title.remove();
+            }
+        });
         return allContent;
     }
 

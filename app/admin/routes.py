@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import or_, and_, cast, VARCHAR
 from app import db
 from sqlalchemy import func
-
+from sqlalchemy.types import String
 
 
 @admin_bp.route("/dashboard")
@@ -170,7 +170,7 @@ def reservations():
         reservations = Reservation.query \
             .join(Booking) \
             .join(Customer) \
-            .filter(or_(Reservation.booking_id.ilike(f'%{search_term}%'),
+            .filter(or_(cast(Reservation.booking_id, String).ilike(f'%{search_term}%'),
                         Customer.fullname.ilike(f'%{search_term}%'))) \
             .paginate(page=page, per_page=per_page)
     else:
@@ -181,7 +181,6 @@ def reservations():
             .paginate(page=page, per_page=per_page)
 
     return render_template('admin/reservation.html', reservations=reservations)
-
 
 @admin_bp.route('/dashboard/reservations/new', methods=['GET', 'POST'])
 @login_required

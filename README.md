@@ -34,7 +34,9 @@ SELECT current_setting('data_directory') AS data_directory;
 docker cp /home/crow/Descargas/customers.csv b35d2fccae0e:/var/lib/postgresql/data/customers.csv
 docker exec -it b35d2fccae0e bash
 ls /var/lib/postgresql/data
-
+docker exec -it b35d2fccae0e bash
+pg_dump -U postgres -d dbservice -F c -b -v -f /var/lib/postgresql/data/dbservice_backup.sql
+docker cp b35d2fccae0e:/var/lib/postgresql/data/dbservice_backup.sql /home/crow/ti/basic-flask/dbservice_backup.sql
 
 ```
 - docker modificate maal base de datos
