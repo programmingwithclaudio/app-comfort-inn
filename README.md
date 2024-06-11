@@ -14,7 +14,7 @@ Este proyecto es una aplicación de gestión de reservas desarrollada con **Flas
 
 - Interfaz intuitiva y fácil de usar.
 - Se implementan reglas de negocio para las operaciones y diferentes funcionalidades.
-- Despliegue sencillo con Docker por conlcuir.
+- Despliegue sencillo con Docker por concluir.
 - Backup con datos simulados.
 
 ## Tecnologías Utilizadas
